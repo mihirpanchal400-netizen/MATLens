@@ -59,6 +59,27 @@ export function Overview() {
       ],
     }));
 
+  // Share is zero-sum, so the two ends of the distribution are the story. The
+  // focus brand is always included even when it sits in the quiet middle.
+  const rankedByShareChange = analysis.brands.filter((b) => b.shareChangePp !== null);
+  const shareMovers = [
+    ...rankedByShareChange.slice().sort((a, b) => (b.shareChangePp ?? 0) - (a.shareChangePp ?? 0)).slice(0, 5),
+    ...rankedByShareChange.slice().sort((a, b) => (a.shareChangePp ?? 0) - (b.shareChangePp ?? 0)).slice(0, 5),
+    ...(focusBrand && focusBrand.shareChangePp !== null ? [focusBrand] : []),
+  ]
+    .filter((brand, index, list) => list.findIndex((b) => b.name === brand.name) === index)
+    .sort((a, b) => (b.shareChangePp ?? 0) - (a.shareChangePp ?? 0))
+    .map((b) => ({
+      name: b.name,
+      value: b.shareChangePp ?? 0,
+      emphasis: b.name === focusBrand?.name,
+      detail: [
+        { label: 'Share now', value: formatPct(b.sharePct, { decimals: 2 }) },
+        { label: 'Share before', value: formatPct(b.prevSharePct, { decimals: 2 }) },
+        { label: 'Growth', value: formatPct(b.growthPct, { signed: true }) },
+      ],
+    }));
+
   const focusSegment = focusBrand?.segment
     ? analysis.segments.find((s) => s.name === focusBrand.segment)
     : null;
@@ -170,18 +191,19 @@ export function Overview() {
             </Card>
 
             <Card
-              title="Where the market's growth went"
-              subtitle="Absolute MAT value added, current period versus previous"
+              title="Who gained and lost share"
+              subtitle="Share is zero-sum — every percentage point one brand gains, another lost"
             >
               <HBarChart
-                data={gainers}
-                format={formatValueAxis}
-                valueLabel="Value added"
-                height={Math.max(200, gainers.length * 26 + 46)}
+                data={shareMovers}
+                format={(v) => formatPp(v, 2)}
+                valueLabel="Share change"
+                diverging
+                height={Math.max(200, shareMovers.length * 26 + 46)}
               />
               <p className="t-micro" style={{ marginTop: 8 }}>
-                Ranked by rupees added rather than growth rate — a 60% gain on a small brand rarely moves a market,
-                and a Brand Manager is competing for the rupees.
+                The five largest gainers and the five largest losers in the current selection
+                {focusBrand && !shareMovers.some((m) => m.emphasis) ? `, plus ${focusBrand.name}` : ''}.
               </p>
             </Card>
           </div>
