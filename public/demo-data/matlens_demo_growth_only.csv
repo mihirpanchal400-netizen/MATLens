@@ -1,0 +1,289 @@
+BRAND,COMPANY,MOLECULE,SEGMENT,REGION,MAT_SALES,MAT_GR
+Acnetrex,Rivona Labs,Isotretinoin,Anti-Acne,North,234679255,12.87
+Acnetrex,Rivona Labs,Isotretinoin,Anti-Acne,South,232586640,19.81
+Acnetrex,Rivona Labs,Isotretinoin,Anti-Acne,West,214097263,16.33
+Acnetrex,Rivona Labs,Isotretinoin,Anti-Acne,East,119769241,10.94
+Acnetrex,Rivona Labs,Isotretinoin,Anti-Acne,Central,118867601,17.23
+Acnovia,Aurex Life Sciences,Adapalene,Anti-Acne,North,81774489,9.41
+Acnovia,Aurex Life Sciences,Adapalene,Anti-Acne,South,84495372,17.37
+Acnovia,Aurex Life Sciences,Adapalene,Anti-Acne,West,58359898,14.19
+Acnovia,Aurex Life Sciences,Adapalene,Anti-Acne,East,43883784,10.26
+Acnovia,Aurex Life Sciences,Adapalene,Anti-Acne,Central,41486458,12.26
+Adaclear,Halcyon Pharma,Adapalene,Anti-Acne,North,266357332,14.67
+Adaclear,Halcyon Pharma,Adapalene,Anti-Acne,South,319962497,23.65
+Adaclear,Halcyon Pharma,Adapalene,Anti-Acne,West,280965139,17.63
+Adaclear,Halcyon Pharma,Adapalene,Anti-Acne,East,163729077,13.53
+Adaclear,Halcyon Pharma,Adapalene,Anti-Acne,Central,148985955,18.23
+Adalin-C,Denvo Healthcare,Adapalene + Clindamycin,Anti-Acne,North,163544859,20.65
+Adalin-C,Denvo Healthcare,Adapalene + Clindamycin,Anti-Acne,South,136658453,27.38
+Adalin-C,Denvo Healthcare,Adapalene + Clindamycin,Anti-Acne,West,128706228,23.91
+Adalin-C,Denvo Healthcare,Adapalene + Clindamycin,Anti-Acne,East,68513674,20.35
+Adalin-C,Denvo Healthcare,Adapalene + Clindamycin,Anti-Acne,Central,82576786,21.96
+Adaplus,Kestrel Biosciences,Adapalene,Anti-Acne,North,86710575,25.83
+Adaplus,Kestrel Biosciences,Adapalene,Anti-Acne,South,66657143,35.33
+Adaplus,Kestrel Biosciences,Adapalene,Anti-Acne,Central,36632282,28.51
+Azelac,Crestlin Pharma,Azelaic Acid,Anti-Acne,North,47215932,19.48
+Azelac,Crestlin Pharma,Azelaic Acid,Anti-Acne,South,42950849,28.15
+Azelac,Crestlin Pharma,Azelaic Acid,Anti-Acne,West,29833219,23.01
+Azeladerm,Sanchit Remedies,Azelaic Acid,Anti-Acne,North,116544280,17.62
+Azeladerm,Sanchit Remedies,Azelaic Acid,Anti-Acne,South,93098022,24.16
+Azeladerm,Sanchit Remedies,Azelaic Acid,Anti-Acne,West,93071036,20.95
+Azeladerm,Sanchit Remedies,Azelaic Acid,Anti-Acne,East,51422473,15.11
+Azeladerm,Sanchit Remedies,Azelaic Acid,Anti-Acne,Central,55864190,21.76
+Benzalux,Orbis Derma,Benzoyl Peroxide,Anti-Acne,North,67687499,7.33
+Benzalux,Orbis Derma,Benzoyl Peroxide,Anti-Acne,East,46343585,4.71
+Benzalux,Orbis Derma,Benzoyl Peroxide,Anti-Acne,Central,45968915,10.1
+Benzoclear,Amaris Pharma,Benzoyl Peroxide,Anti-Acne,North,172484784,8.18
+Benzoclear,Amaris Pharma,Benzoyl Peroxide,Anti-Acne,South,175761064,16.55
+Benzoclear,Amaris Pharma,Benzoyl Peroxide,Anti-Acne,West,139998194,11.1
+Benzoclear,Amaris Pharma,Benzoyl Peroxide,Anti-Acne,East,73989985,6.19
+Benzoclear,Amaris Pharma,Benzoyl Peroxide,Anti-Acne,Central,107765973,12.52
+Clindaqua,Verdant Derma,Clindamycin,Anti-Acne,North,85725189,6.32
+Clindaqua,Verdant Derma,Clindamycin,Anti-Acne,South,86268495,11.61
+Clindaqua,Verdant Derma,Clindamycin,Anti-Acne,West,87070091,8.53
+Clindaqua,Verdant Derma,Clindamycin,Anti-Acne,East,47826631,4.62
+Clindaqua,Verdant Derma,Clindamycin,Anti-Acne,Central,53109594,5.8
+Isoclear,Lumis Pharma,Isotretinoin,Anti-Acne,North,74195184,24.41
+Isoclear,Lumis Pharma,Isotretinoin,Anti-Acne,South,60577487,30.88
+Isoclear,Lumis Pharma,Isotretinoin,Anti-Acne,West,51163335,28.06
+Isoclear,Lumis Pharma,Isotretinoin,Anti-Acne,East,40685866,22.09
+Isoclear,Lumis Pharma,Isotretinoin,Anti-Acne,Central,43378128,28.05
+Retinova,Trilok Healthcare,Isotretinoin,Anti-Acne,North,66132444,15.01
+Retinova,Trilok Healthcare,Isotretinoin,Anti-Acne,East,37177560,13.31
+Retinova,Trilok Healthcare,Isotretinoin,Anti-Acne,Central,36689996,18.01
+Amorofix,Trilok Healthcare,Amorolfine,Antifungals,North,95903223,12.17
+Amorofix,Trilok Healthcare,Amorolfine,Antifungals,South,85674168,19.41
+Amorofix,Trilok Healthcare,Amorolfine,Antifungals,West,78213707,17.15
+Amorofix,Trilok Healthcare,Amorolfine,Antifungals,East,39600235,10.02
+Amorofix,Trilok Healthcare,Amorolfine,Antifungals,Central,40608668,14.68
+Dermalite,Denvo Healthcare,Ketoconazole,Antifungals,North,88940212,3.69
+Dermalite,Denvo Healthcare,Ketoconazole,Antifungals,East,53747372,3.4
+Dermalite,Denvo Healthcare,Ketoconazole,Antifungals,Central,37312416,7.92
+Dermazol,Nordic Remedies India,Terbinafine,Antifungals,North,550022705,15.14
+Dermazol,Nordic Remedies India,Terbinafine,Antifungals,South,487136243,21.52
+Dermazol,Nordic Remedies India,Terbinafine,Antifungals,West,468164294,15.62
+Dermazol,Nordic Remedies India,Terbinafine,Antifungals,East,273840446,11.45
+Dermazol,Nordic Remedies India,Terbinafine,Antifungals,Central,200836311,17.48
+Fungiban,Bharat Cutis,Ketoconazole,Antifungals,North,67328569,-7.74
+Fungiban,Bharat Cutis,Ketoconazole,Antifungals,South,69910869,0.1
+Fungiban,Bharat Cutis,Ketoconazole,Antifungals,West,72294207,-5.16
+Fungiban,Bharat Cutis,Ketoconazole,Antifungals,East,37900292,-9.06
+Fungiban,Bharat Cutis,Ketoconazole,Antifungals,Central,42566063,-4.61
+Fungiclear,Vantiva Healthcare,Luliconazole,Antifungals,North,272215332,22.16
+Fungiclear,Vantiva Healthcare,Luliconazole,Antifungals,South,749366847,31.37
+Fungiclear,Vantiva Healthcare,Luliconazole,Antifungals,West,322511635,28.18
+Fungiclear,Vantiva Healthcare,Luliconazole,Antifungals,East,232908342,21.46
+Fungiclear,Vantiva Healthcare,Luliconazole,Antifungals,Central,162997844,25.8
+Itracare,Kritika Labs,Itraconazole,Antifungals,North,284264817,14.09
+Itracare,Kritika Labs,Itraconazole,Antifungals,South,289932058,21.48
+Itracare,Kritika Labs,Itraconazole,Antifungals,West,272558672,18.17
+Itracare,Kritika Labs,Itraconazole,Antifungals,East,150394079,11.34
+Itracare,Kritika Labs,Itraconazole,Antifungals,Central,122850375,17.13
+Itrasol,Aventra Healthcare,Itraconazole,Antifungals,West,94058805,13.28
+Itrasol,Aventra Healthcare,Itraconazole,Antifungals,East,47691058,10.81
+Itrasol,Aventra Healthcare,Itraconazole,Antifungals,Central,58250137,15.16
+Itrazen,Elvia Sciences,Itraconazole,Antifungals,North,70621489,21.04
+Itrazen,Elvia Sciences,Itraconazole,Antifungals,South,58153046,26.78
+Itrazen,Elvia Sciences,Itraconazole,Antifungals,West,55752610,23.61
+Itrazen,Elvia Sciences,Itraconazole,Antifungals,East,38371845,18.52
+Itrazen,Elvia Sciences,Itraconazole,Antifungals,Central,37101010,22.17
+Ketorin,Solvex Pharma,Ketoconazole,Antifungals,North,320006664,4.57
+Ketorin,Solvex Pharma,Ketoconazole,Antifungals,South,251379219,10.37
+Ketorin,Solvex Pharma,Ketoconazole,Antifungals,West,278149624,5.95
+Ketorin,Solvex Pharma,Ketoconazole,Antifungals,East,150312794,0.77
+Ketorin,Solvex Pharma,Ketoconazole,Antifungals,Central,210151699,3.94
+Lulicort,Orbis Derma,Luliconazole,Antifungals,North,68934157,31.03
+Lulicort,Orbis Derma,Luliconazole,Antifungals,South,44871039,39.86
+Lulicort,Orbis Derma,Luliconazole,Antifungals,West,46933211,35.6
+Lulicort,Orbis Derma,Luliconazole,Antifungals,East,26394585,28.64
+Lulicort,Orbis Derma,Luliconazole,Antifungals,Central,32867008,33.89
+Luliderm,Nordic Remedies India,Luliconazole,Antifungals,North,75364388,28.21
+Luliderm,Nordic Remedies India,Luliconazole,Antifungals,South,55557916,34.07
+Luliderm,Nordic Remedies India,Luliconazole,Antifungals,West,56743446,32.2
+Luliderm,Nordic Remedies India,Luliconazole,Antifungals,East,44422935,27.25
+Luliderm,Nordic Remedies India,Luliconazole,Antifungals,Central,37911315,29.24
+Lulivan,Kestrel Biosciences,Luliconazole,Antifungals,North,82034718,55.87
+Lulivan,Kestrel Biosciences,Luliconazole,Antifungals,South,130437333,64.96
+Lulivan,Kestrel Biosciences,Luliconazole,Antifungals,West,74143105,59.08
+Lulivan,Kestrel Biosciences,Luliconazole,Antifungals,East,43427612,56.38
+Lulivan,Kestrel Biosciences,Luliconazole,Antifungals,Central,49957233,59.22
+Sertazyl,Meridian Dermacare,Sertaconazole,Antifungals,North,186576030,11.16
+Sertazyl,Meridian Dermacare,Sertaconazole,Antifungals,South,172167940,18.22
+Sertazyl,Meridian Dermacare,Sertaconazole,Antifungals,West,193886642,12.3
+Sertazyl,Meridian Dermacare,Sertaconazole,Antifungals,East,121236012,7.6
+Sertazyl,Meridian Dermacare,Sertaconazole,Antifungals,Central,106133376,13.38
+Soranil,Aurex Life Sciences,Luliconazole,Antifungals,North,666290024,8.6
+Soranil,Aurex Life Sciences,Luliconazole,Antifungals,South,190505360,5.45
+Soranil,Aurex Life Sciences,Luliconazole,Antifungals,West,606241864,7.23
+Soranil,Aurex Life Sciences,Luliconazole,Antifungals,East,245722595,6.14
+Soranil,Aurex Life Sciences,Luliconazole,Antifungals,Central,151240157,8.82
+Terbiflex,Sanchit Remedies,Terbinafine,Antifungals,North,64084001,-9.85
+Terbiflex,Sanchit Remedies,Terbinafine,Antifungals,West,51826880,-7.53
+Terbiflex,Sanchit Remedies,Terbinafine,Antifungals,East,44089119,-12.13
+Terbimax,Zenova Pharma,Terbinafine,Antifungals,North,206146972,-2.59
+Terbimax,Zenova Pharma,Terbinafine,Antifungals,South,140124833,2.21
+Terbimax,Zenova Pharma,Terbinafine,Antifungals,West,145906677,0.96
+Terbimax,Zenova Pharma,Terbinafine,Antifungals,East,114138705,-6.55
+Terbimax,Zenova Pharma,Terbinafine,Antifungals,Central,103682814,-2.78
+Ceravita,Sable & Co Pharma,Ceramide Complex,Dermo-Cosmetics & Emollients,North,247882655,18.52
+Ceravita,Sable & Co Pharma,Ceramide Complex,Dermo-Cosmetics & Emollients,South,216546968,27.54
+Ceravita,Sable & Co Pharma,Ceramide Complex,Dermo-Cosmetics & Emollients,West,290628019,21.3
+Ceravita,Sable & Co Pharma,Ceramide Complex,Dermo-Cosmetics & Emollients,East,142789356,18.96
+Ceravita,Sable & Co Pharma,Ceramide Complex,Dermo-Cosmetics & Emollients,Central,142153002,22
+Cerawell,Meridian Dermacare,Ceramide Complex,Dermo-Cosmetics & Emollients,North,57948811,24.47
+Cerawell,Meridian Dermacare,Ceramide Complex,Dermo-Cosmetics & Emollients,South,52007258,31.8
+Cerawell,Meridian Dermacare,Ceramide Complex,Dermo-Cosmetics & Emollients,West,59330546,28.58
+Cerawell,Meridian Dermacare,Ceramide Complex,Dermo-Cosmetics & Emollients,East,30565315,23.81
+Cerawell,Meridian Dermacare,Ceramide Complex,Dermo-Cosmetics & Emollients,Central,30148069,25.96
+Emollex,Elvia Sciences,Urea,Dermo-Cosmetics & Emollients,West,81783200,12.78
+Emollex,Elvia Sciences,Urea,Dermo-Cosmetics & Emollients,East,35310013,7.67
+Emollex,Elvia Sciences,Urea,Dermo-Cosmetics & Emollients,Central,52906786,13.87
+Glycolux,Nuvia Life,Glycolic Acid,Dermo-Cosmetics & Emollients,North,129371942,14.21
+Glycolux,Nuvia Life,Glycolic Acid,Dermo-Cosmetics & Emollients,South,115746013,22.48
+Glycolux,Nuvia Life,Glycolic Acid,Dermo-Cosmetics & Emollients,West,110348529,19.53
+Glycolux,Nuvia Life,Glycolic Acid,Dermo-Cosmetics & Emollients,East,81005365,13.92
+Glycolux,Nuvia Life,Glycolic Acid,Dermo-Cosmetics & Emollients,Central,73528151,18.8
+Hydraderm,Pentara Labs,Ceramide Complex,Dermo-Cosmetics & Emollients,North,101549818,9.37
+Hydraderm,Pentara Labs,Ceramide Complex,Dermo-Cosmetics & Emollients,South,129961630,15.03
+Hydraderm,Pentara Labs,Ceramide Complex,Dermo-Cosmetics & Emollients,West,92197772,12.53
+Hydraderm,Pentara Labs,Ceramide Complex,Dermo-Cosmetics & Emollients,East,77104165,7.13
+Hydraderm,Pentara Labs,Ceramide Complex,Dermo-Cosmetics & Emollients,Central,59186615,9.76
+Moistura,Indus Cutis,Urea,Dermo-Cosmetics & Emollients,North,52794927,4.52
+Moistura,Indus Cutis,Urea,Dermo-Cosmetics & Emollients,South,66909512,12.26
+Moistura,Indus Cutis,Urea,Dermo-Cosmetics & Emollients,West,63681774,8.26
+Moistura,Indus Cutis,Urea,Dermo-Cosmetics & Emollients,East,28874628,3.48
+Moistura,Indus Cutis,Urea,Dermo-Cosmetics & Emollients,Central,27739159,7.27
+Solguard,Aurex Life Sciences,Sunscreen Filters,Dermo-Cosmetics & Emollients,North,118567499,13.45
+Solguard,Aurex Life Sciences,Sunscreen Filters,Dermo-Cosmetics & Emollients,South,80087761,21.67
+Solguard,Aurex Life Sciences,Sunscreen Filters,Dermo-Cosmetics & Emollients,West,87564482,16.11
+Solguard,Aurex Life Sciences,Sunscreen Filters,Dermo-Cosmetics & Emollients,East,45027944,10.75
+Solguard,Aurex Life Sciences,Sunscreen Filters,Dermo-Cosmetics & Emollients,Central,58752314,15.53
+Suncora SPF,Orbis Derma,Sunscreen Filters,Dermo-Cosmetics & Emollients,North,269141326,21.83
+Suncora SPF,Orbis Derma,Sunscreen Filters,Dermo-Cosmetics & Emollients,South,200826074,31.19
+Suncora SPF,Orbis Derma,Sunscreen Filters,Dermo-Cosmetics & Emollients,West,164842671,25.69
+Suncora SPF,Orbis Derma,Sunscreen Filters,Dermo-Cosmetics & Emollients,East,111381038,20.06
+Suncora SPF,Orbis Derma,Sunscreen Filters,Dermo-Cosmetics & Emollients,Central,123808891,23.78
+Sunvia,Zenova Pharma,Sunscreen Filters,Dermo-Cosmetics & Emollients,North,87866457,18.71
+Sunvia,Zenova Pharma,Sunscreen Filters,Dermo-Cosmetics & Emollients,South,77790345,23.92
+Sunvia,Zenova Pharma,Sunscreen Filters,Dermo-Cosmetics & Emollients,East,44343198,15.05
+Urexoft,Crestlin Pharma,Urea,Dermo-Cosmetics & Emollients,North,145491224,12.11
+Urexoft,Crestlin Pharma,Urea,Dermo-Cosmetics & Emollients,South,161294506,18.37
+Urexoft,Crestlin Pharma,Urea,Dermo-Cosmetics & Emollients,West,152190134,14.05
+Urexoft,Crestlin Pharma,Urea,Dermo-Cosmetics & Emollients,East,71794880,8.62
+Urexoft,Crestlin Pharma,Urea,Dermo-Cosmetics & Emollients,Central,99229255,14.09
+Apremid,Nordic Remedies India,Apremilast,Psoriasis & Immunology,North,240950950,29.4
+Apremid,Nordic Remedies India,Apremilast,Psoriasis & Immunology,South,215579076,36.32
+Apremid,Nordic Remedies India,Apremilast,Psoriasis & Immunology,West,195660863,34.89
+Apremid,Nordic Remedies India,Apremilast,Psoriasis & Immunology,East,117161916,27.14
+Apremid,Nordic Remedies India,Apremilast,Psoriasis & Immunology,Central,110647195,32.71
+Apretab,Halcyon Pharma,Apremilast,Psoriasis & Immunology,South,75847376,41.67
+Apretab,Halcyon Pharma,Apremilast,Psoriasis & Immunology,West,58528723,35.39
+Apretab,Halcyon Pharma,Apremilast,Psoriasis & Immunology,Central,45623901,34.6
+Apreza,Solvex Pharma,Apremilast,Psoriasis & Immunology,North,69197270,35.72
+Apreza,Solvex Pharma,Apremilast,Psoriasis & Immunology,South,58512364,41.01
+Apreza,Solvex Pharma,Apremilast,Psoriasis & Immunology,West,67216651,37.29
+Apreza,Solvex Pharma,Apremilast,Psoriasis & Immunology,East,44187286,32.07
+Apreza,Solvex Pharma,Apremilast,Psoriasis & Immunology,Central,50886430,36.54
+Calcipro,Vantiva Healthcare,Calcipotriol + Betamethasone,Psoriasis & Immunology,North,183266907,22.73
+Calcipro,Vantiva Healthcare,Calcipotriol + Betamethasone,Psoriasis & Immunology,South,168656187,31.29
+Calcipro,Vantiva Healthcare,Calcipotriol + Betamethasone,Psoriasis & Immunology,West,184450462,25.59
+Calcipro,Vantiva Healthcare,Calcipotriol + Betamethasone,Psoriasis & Immunology,East,107195633,20.53
+Calcipro,Vantiva Healthcare,Calcipotriol + Betamethasone,Psoriasis & Immunology,Central,116430811,25.19
+Metholan,Zenova Pharma,Methotrexate,Psoriasis & Immunology,North,81271725,6.29
+Metholan,Zenova Pharma,Methotrexate,Psoriasis & Immunology,South,76560735,12.69
+Metholan,Zenova Pharma,Methotrexate,Psoriasis & Immunology,West,77323659,9.26
+Metholan,Zenova Pharma,Methotrexate,Psoriasis & Immunology,East,43595516,5.61
+Metholan,Zenova Pharma,Methotrexate,Psoriasis & Immunology,Central,51248365,9.44
+Psorilite,Bharat Cutis,Calcipotriol,Psoriasis & Immunology,North,39458289,13.21
+Psorilite,Bharat Cutis,Calcipotriol,Psoriasis & Immunology,South,43251355,21.53
+Psorilite,Bharat Cutis,Calcipotriol,Psoriasis & Immunology,West,37290356,17.4
+Psorinex,Kritika Labs,Calcipotriol,Psoriasis & Immunology,North,128505845,17.8
+Psorinex,Kritika Labs,Calcipotriol,Psoriasis & Immunology,South,100731312,23.5
+Psorinex,Kritika Labs,Calcipotriol,Psoriasis & Immunology,West,112271692,19.05
+Psorinex,Kritika Labs,Calcipotriol,Psoriasis & Immunology,East,72126529,15.06
+Psorinex,Kritika Labs,Calcipotriol,Psoriasis & Immunology,Central,76364622,18.28
+Secukin-D,Meridian Dermacare,Secukinumab,Psoriasis & Immunology,North,125167016,42.77
+Secukin-D,Meridian Dermacare,Secukinumab,Psoriasis & Immunology,South,91151357,48.69
+Secukin-D,Meridian Dermacare,Secukinumab,Psoriasis & Immunology,West,104923961,45.24
+Secukin-D,Meridian Dermacare,Secukinumab,Psoriasis & Immunology,East,48715657,39.16
+Secukin-D,Meridian Dermacare,Secukinumab,Psoriasis & Immunology,Central,70042009,44.14
+Fusicare,Amaris Pharma,Fusidic Acid,Topical Antibacterials,North,56220236,1.65
+Fusicare,Amaris Pharma,Fusidic Acid,Topical Antibacterials,South,58697068,10.02
+Fusicare,Amaris Pharma,Fusidic Acid,Topical Antibacterials,West,47123644,5.08
+Fusicare,Amaris Pharma,Fusidic Acid,Topical Antibacterials,East,33255706,-1.65
+Fusicare,Amaris Pharma,Fusidic Acid,Topical Antibacterials,Central,24703346,3.84
+Fusiderm,Cygnet Derma,Fusidic Acid,Topical Antibacterials,North,143212401,7.04
+Fusiderm,Cygnet Derma,Fusidic Acid,Topical Antibacterials,South,168568447,14.26
+Fusiderm,Cygnet Derma,Fusidic Acid,Topical Antibacterials,West,127144948,9.99
+Fusiderm,Cygnet Derma,Fusidic Acid,Topical Antibacterials,East,80031324,3.8
+Fusiderm,Cygnet Derma,Fusidic Acid,Topical Antibacterials,Central,101042880,7.54
+Mupiban,Rivona Labs,Mupirocin,Topical Antibacterials,North,88683824,-5.58
+Mupiban,Rivona Labs,Mupirocin,Topical Antibacterials,South,70731017,2.89
+Mupiban,Rivona Labs,Mupirocin,Topical Antibacterials,West,66640557,-2.38
+Mupiban,Rivona Labs,Mupirocin,Topical Antibacterials,East,36129916,-6.78
+Mupiban,Rivona Labs,Mupirocin,Topical Antibacterials,Central,47814686,-1.17
+Mupicare,Kritika Labs,Mupirocin,Topical Antibacterials,North,55030860,3.97
+Mupicare,Kritika Labs,Mupirocin,Topical Antibacterials,South,42798088,10.43
+Mupicare,Kritika Labs,Mupirocin,Topical Antibacterials,West,42171052,6.43
+Mupirex,Aventra Healthcare,Mupirocin,Topical Antibacterials,North,208115809,8.01
+Mupirex,Aventra Healthcare,Mupirocin,Topical Antibacterials,South,201359303,13.68
+Mupirex,Aventra Healthcare,Mupirocin,Topical Antibacterials,West,180125137,11.68
+Mupirex,Aventra Healthcare,Mupirocin,Topical Antibacterials,East,102229870,3.51
+Mupirex,Aventra Healthcare,Mupirocin,Topical Antibacterials,Central,98169881,9.03
+Nadicin,Halcyon Pharma,Nadifloxacin,Topical Antibacterials,North,95680053,11.29
+Nadicin,Halcyon Pharma,Nadifloxacin,Topical Antibacterials,South,107141227,18.72
+Nadicin,Halcyon Pharma,Nadifloxacin,Topical Antibacterials,West,84234454,16.93
+Nadicin,Halcyon Pharma,Nadifloxacin,Topical Antibacterials,East,55665492,10.49
+Nadicin,Halcyon Pharma,Nadifloxacin,Topical Antibacterials,Central,67278774,15.61
+Nadiflex,Solvex Pharma,Nadifloxacin,Topical Antibacterials,North,40973107,8.72
+Nadiflex,Solvex Pharma,Nadifloxacin,Topical Antibacterials,South,36125303,16.58
+Nadiflex,Solvex Pharma,Nadifloxacin,Topical Antibacterials,West,32901590,12.14
+Clobenol,Nuvia Life,Clobetasol,Topical Corticosteroids,North,258106108,1.84
+Clobenol,Nuvia Life,Clobetasol,Topical Corticosteroids,South,260271217,9.3
+Clobenol,Nuvia Life,Clobetasol,Topical Corticosteroids,West,169193978,4.23
+Clobenol,Nuvia Life,Clobetasol,Topical Corticosteroids,East,123816544,-1.19
+Clobenol,Nuvia Life,Clobetasol,Topical Corticosteroids,Central,148612153,4.95
+Clobetal,Aventra Healthcare,Clobetasol,Topical Corticosteroids,North,64755922,-5.9
+Clobetal,Aventra Healthcare,Clobetasol,Topical Corticosteroids,South,88713124,1.04
+Clobetal,Aventra Healthcare,Clobetasol,Topical Corticosteroids,West,79277479,-1.65
+Clobetal,Aventra Healthcare,Clobetasol,Topical Corticosteroids,East,46098839,-8.24
+Clobetal,Aventra Healthcare,Clobetasol,Topical Corticosteroids,Central,51154636,-5.39
+Clobix,Lumis Pharma,Clobetasol,Topical Corticosteroids,North,56619611,-4.6
+Clobix,Lumis Pharma,Clobetasol,Topical Corticosteroids,West,49204819,0.6
+Clobix,Lumis Pharma,Clobetasol,Topical Corticosteroids,East,24175570,-4.86
+Desonex,Indus Cutis,Desonide,Topical Corticosteroids,North,127699626,11.76
+Desonex,Indus Cutis,Desonide,Topical Corticosteroids,South,92374672,20.02
+Desonex,Indus Cutis,Desonide,Topical Corticosteroids,West,79651570,15.96
+Desonex,Indus Cutis,Desonide,Topical Corticosteroids,East,69574285,8.79
+Desonex,Indus Cutis,Desonide,Topical Corticosteroids,Central,70699847,14.31
+Flutiderm,Cygnet Derma,Fluticasone,Topical Corticosteroids,North,73120182,6.96
+Flutiderm,Cygnet Derma,Fluticasone,Topical Corticosteroids,South,69290337,11.7
+Flutiderm,Cygnet Derma,Fluticasone,Topical Corticosteroids,East,37589481,5.41
+Flutizone,Pentara Labs,Fluticasone,Topical Corticosteroids,North,181457094,6.63
+Flutizone,Pentara Labs,Fluticasone,Topical Corticosteroids,South,155184192,15.78
+Flutizone,Pentara Labs,Fluticasone,Topical Corticosteroids,West,166960792,11.43
+Flutizone,Pentara Labs,Fluticasone,Topical Corticosteroids,East,106059434,4.36
+Flutizone,Pentara Labs,Fluticasone,Topical Corticosteroids,Central,130338489,9.63
+Halobet,Sable & Co Pharma,Halobetasol,Topical Corticosteroids,North,144769923,-3.87
+Halobet,Sable & Co Pharma,Halobetasol,Topical Corticosteroids,South,138825996,4.63
+Halobet,Sable & Co Pharma,Halobetasol,Topical Corticosteroids,West,101279488,1.22
+Halobet,Sable & Co Pharma,Halobetasol,Topical Corticosteroids,East,71963725,-5.57
+Halobet,Sable & Co Pharma,Halobetasol,Topical Corticosteroids,Central,63160867,0.23
+Momecort,Crestlin Pharma,Mometasone,Topical Corticosteroids,North,389159565,5.34
+Momecort,Crestlin Pharma,Mometasone,Topical Corticosteroids,South,284956521,12.19
+Momecort,Crestlin Pharma,Mometasone,Topical Corticosteroids,West,345908997,9.65
+Momecort,Crestlin Pharma,Mometasone,Topical Corticosteroids,East,207323441,3.97
+Momecort,Crestlin Pharma,Mometasone,Topical Corticosteroids,Central,192651477,8.98
+Momeflex,Aurex Life Sciences,Mometasone,Topical Corticosteroids,North,151275391,4.15
+Momeflex,Aurex Life Sciences,Mometasone,Topical Corticosteroids,South,156305618,12.1
+Momeflex,Aurex Life Sciences,Mometasone,Topical Corticosteroids,West,143092034,7.3
+Momeflex,Aurex Life Sciences,Mometasone,Topical Corticosteroids,East,82895053,2.54
+Momeflex,Aurex Life Sciences,Mometasone,Topical Corticosteroids,Central,76431904,5.84
+Momesol,Verdant Derma,Mometasone,Topical Corticosteroids,North,56696750,2.86
+Momesol,Verdant Derma,Mometasone,Topical Corticosteroids,South,65692054,11.76
+Momesol,Verdant Derma,Mometasone,Topical Corticosteroids,Central,27611196,4.55
+Steroderm,Cygnet Derma,Mometasone,Topical Corticosteroids,North,65060868,8.16
+Steroderm,Cygnet Derma,Mometasone,Topical Corticosteroids,South,78445926,15.76
+Steroderm,Cygnet Derma,Mometasone,Topical Corticosteroids,West,59794053,12.43
+Steroderm,Cygnet Derma,Mometasone,Topical Corticosteroids,East,41647977,6.69
+Steroderm,Cygnet Derma,Mometasone,Topical Corticosteroids,Central,35051176,11.93

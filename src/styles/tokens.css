@@ -1,0 +1,89 @@
+/* ============================================================
+   MATLens design tokens
+   Chart series palette is the validated categorical palette
+   (adjacent-pair CVD safe, light surface). UI chrome uses a
+   separate accent hue so a series colour never impersonates
+   a UI affordance, and vice versa.
+   ============================================================ */
+:root {
+  color-scheme: light;
+
+  /* Surfaces & ink */
+  --canvas:        #f4f6f8;
+  --surface:       #ffffff;
+  --surface-sunk:  #fafbfc;
+  --surface-inset: #f1f4f7;
+  --line:          #e3e8ef;
+  --line-strong:   #cfd7e3;
+
+  --ink-900: #0b1220;
+  --ink-700: #26334d;
+  --ink-500: #5a6784;
+  --ink-400: #7c8aa5;
+  --ink-300: #a3aec2;
+
+  /* Brand accent — UI chrome only, never a data series */
+  --accent:        #0f5f5b;
+  --accent-strong: #0b4b48;
+  --accent-tint:   #e7f1f0;
+  --accent-line:   #bcd8d5;
+
+  /* Status — fixed roles, always shipped with an icon + label */
+  --good:      #0ca30c;
+  --good-ink:  #0a7a0a;
+  --good-tint: #e8f6e8;
+  --warning:      #fab219;
+  --warning-ink:  #8a5d00;
+  --warning-tint: #fdf3df;
+  --serious:      #ec835a;
+  --serious-ink:  #a44a22;
+  --serious-tint: #fdeee7;
+  --critical:      #d03b3b;
+  --critical-ink:  #b3261e;
+  --critical-tint: #fbeaea;
+
+  /* Directional value ink (positive / negative numbers in tables) */
+  --pos-ink: #0a7a0a;
+  --neg-ink: #b3261e;
+
+  /* Categorical series slots — fixed order, never cycled */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --series-7: #4a3aa7;
+  --series-8: #e34948;
+
+  /* Diverging pair (share change): blue <-> red, neutral gray midpoint */
+  --div-pos: #2a78d6;
+  --div-neg: #d03b3b;
+  --div-mid: #f0efec;
+
+  /* Sequential (single hue, light -> dark) */
+  --seq-200: #9ec5f4;
+  --seq-350: #5598e7;
+  --seq-450: #2a78d6;
+  --seq-600: #184f95;
+
+  /* Chart chrome */
+  --grid: #edf1f5;
+  --axis: #d7dee8;
+  --muted-mark: #c8d2e0;
+
+  /* Type */
+  --font-sans: "Segoe UI", -apple-system, BlinkMacSystemFont, Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Cascadia Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  /* Spacing / radius / elevation */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(11, 18, 32, .06);
+  --shadow-md: 0 1px 3px rgba(11, 18, 32, .07), 0 8px 24px rgba(11, 18, 32, .06);
+  --shadow-lg: 0 24px 60px rgba(11, 18, 32, .16);
+
+  --sidebar-w: 244px;
+  --topbar-h: 64px;
+}
