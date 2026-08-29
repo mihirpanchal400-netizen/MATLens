@@ -6,6 +6,52 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ---
 
+## [1.1.0] - 2026-08-29
+
+Large-file support, driven by a real 211 MB market basefile that the first release could not open.
+
+### Added
+
+- **Streaming basefile converter** (`npm run convert`). Streams a workbook row by row with ExcelJS
+  without ever holding it in memory, auto-detects the two most recent MAT value and unit columns from
+  headers like `Mar-26 MAT Sales Value`, keeps only the columns MATLens analyses, and sums SKU rows to
+  brand level. Supports `--list`, `--therapy`, `--company`, `--sku-level` and `--limit`. A 211 MB,
+  98,249-row x 180-column IPM basefile converts to a 9 MB, 65,825-row CSV in about 50 seconds.
+- **Streaming CSV parsing** in the browser for files above 8 MB, with a live progress indicator
+  showing rows read and percentage complete. The file text never becomes a single string.
+- **Value-unit setting.** Market audits are often denominated in thousands, lakhs or crores. MATLens
+  now flags a market total too small to be plausible, shows what the market would total under each
+  unit, and lets the user choose - it never guesses. Growth, share and rank are unaffected; unit sales
+  are never rescaled.
+- **Brand-dropdown capping.** A national basefile can carry tens of thousands of brands, which would
+  lock a native `select`. The list is capped at the 250 largest by value, always including the current
+  selection, with the remainder reachable through search on Competitor Intelligence.
+- Scale coverage in `npm run verify` (170 checks, up from 151): a 60,000-row CSV, dropdown capping,
+  unit rescaling, and SKU-level grain versus true duplicates.
+
+### Changed
+
+- Upload limit raised from 30 MB to 500 MB, and the limit is now explained in terms of what actually
+  binds: JavaScript's 512 MB maximum string length.
+- Duplicate detection now compares **every source column**. Previously, SKU-level rows that differed
+  only in an unmapped column were wrongly reported as duplicates; they are now described as a finer
+  row grain, which is what they are.
+- Excel parsing selects the sheet with the most data rather than the first sheet, so a pivot or cover
+  sheet placed ahead of the data no longer wins.
+
+### Fixed
+
+- A worksheet too large to materialise is dropped silently by the spreadsheet parser rather than
+  raising an error. MATLens now detects that exact condition and explains it, instead of reporting a
+  generic "could not be read".
+- The converter no longer writes `0` for a brand with no previous-period data. It writes blank -
+  turning "unknown" into "zero" understated growth bases across two thirds of the rows in testing.
+- Rounding in the converter preserved only whole numbers, which destroyed all precision in a file
+  denominated in crores. It now keeps up to six decimals.
+- The value-unit warning was assembled after the data-health report and so never appeared in it.
+
+---
+
 ## [1.0.0] — 2026-08-29
 
 First working prototype. MAT market data in, brand decisions out, with the arithmetic visible.

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useApp } from '../state/AppState';
-import { UNSPECIFIED, competitorsOf } from '../analytics/analyse';
+import { UNSPECIFIED, brandOptions, competitorsOf } from '../analytics/analyse';
 import { growthGapPp, growthPct, sharePct } from '../analytics/metrics';
 import { HBarChart, type HBarDatum } from '../charts/HBarChart';
 import { FilterBar, ScopeNote } from '../components/FilterBar';
@@ -43,6 +43,7 @@ export function BrandPerformance() {
   const segment = focusBrand.segment ? analysis.segments.find((s) => s.name === focusBrand.segment) : null;
   const molecule = focusBrand.molecule ? analysis.molecules.find((m) => m.name === focusBrand.molecule) : null;
   const competitors = competitorsOf(analysis, focusBrand, 10);
+  const selectable = brandOptions(analysis, focusBrand.name);
   const brandSignals = insights.filter(
     (insight) => insight.subject === focusBrand.name || insight.scope === 'brand',
   );
@@ -84,12 +85,23 @@ export function BrandPerformance() {
             value={focusBrandName ?? focusBrand.name}
             onChange={(event) => setFocusBrand(event.target.value)}
           >
-            {analysis.brands.map((brand) => (
+            {selectable.options.map((brand) => (
               <option key={brand.name} value={brand.name}>
                 {brand.name} — {formatValue(brand.matValue)}
               </option>
             ))}
+            {selectable.truncated > 0 && (
+              <option value="" disabled>
+                … {selectable.truncated.toLocaleString('en-IN')} smaller brands not listed
+              </option>
+            )}
           </select>
+          {selectable.truncated > 0 && (
+            <span className="t-micro">
+              Largest {selectable.options.length.toLocaleString('en-IN')} brands listed — search the rest on Competitor
+              Intelligence and click a row to focus it.
+            </span>
+          )}
           <div className="t-sub">
             {focusBrand.company ?? 'Company not identified'}
             {focusBrand.molecule ? ` · ${focusBrand.molecule}` : ''}

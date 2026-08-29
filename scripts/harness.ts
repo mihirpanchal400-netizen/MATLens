@@ -9,7 +9,7 @@
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { analyse, applyFilters } from '../src/analytics/analyse';
+import { analyse, applyFilters, brandOptions } from '../src/analytics/analyse';
 import { generateInsights, opportunitiesFrom } from '../src/analytics/insightEngine';
 import { buildDataset } from '../src/data/buildDataset';
 import { mapColumns } from '../src/data/columnMapper';
@@ -327,6 +327,95 @@ async function main() {
 
   const noHistoryHtml = renderPage('market', currentOnly);
   check('a withheld metric is explained rather than left blank', noHistoryHtml.includes('is unavailable'));
+
+  /* ---------------------------------------------------------------- */
+  heading('13. Scale — a large file, and a file not denominated in rupees');
+
+  // Built at test time rather than committed: a repo should not carry a 15 MB fixture.
+  const bigHeader = 'BRAND_NAME,COMP_NAME,MOLECULE_NAME,THERAPY_AREA,SEGMENT,REGION,MAT_VAL,PREV_MAT_VAL';
+  const bigLines: string[] = [bigHeader];
+  for (let i = 0; i < 60000; i += 1) {
+    const value = 100000 + ((i * 7919) % 900000);
+    const previous = Math.round(value / (1 + (((i * 31) % 40) - 10) / 100));
+    bigLines.push(
+      `Brand ${i % 12000},Company ${i % 400},Molecule ${i % 90},Dermatology,Segment ${i % 24},Region ${i % 6},${value},${previous}`,
+    );
+  }
+  const bigCsv = bigLines.join('\n');
+  const bigFile = new File([bigCsv], 'large-synthetic.csv');
+
+  let started = Date.now();
+  const bigRaw = await parseFile(bigFile);
+  const parseSeconds = (Date.now() - started) / 1000;
+  check('a 60,000-row CSV parses', bigRaw.rows.length === 60000, `${parseSeconds.toFixed(1)}s, ${(bigCsv.length / 1048576).toFixed(1)} MB`);
+  check('parsing stays well inside a usable time', parseSeconds < 20, `${parseSeconds.toFixed(1)}s`);
+
+  const bigDataset = buildDataset({ raw: bigRaw, mappings: mapColumns(bigRaw) });
+  started = Date.now();
+  const bigAnalysis = analyse(bigDataset.rows);
+  const analyseSeconds = (Date.now() - started) / 1000;
+  check('analysis completes on 60,000 rows', bigAnalysis.brands.length === 12000, `${analyseSeconds.toFixed(2)}s, ${bigAnalysis.brands.length.toLocaleString('en-IN')} brands`);
+  check('analysis stays fast at scale', analyseSeconds < 10, `${analyseSeconds.toFixed(2)}s`);
+  check(
+    'integrity holds at scale — shares still sum to 100%',
+    near(bigAnalysis.brands.reduce((s, b) => s + (b.sharePct ?? 0), 0), 100, 1e-6),
+  );
+  check('ranks are still contiguous at scale', bigAnalysis.brands.every((b, i) => b.rank === i + 1));
+  started = Date.now();
+  const bigInsights = generateInsights(bigAnalysis, bigAnalysis.brands[0], bigDataset.capabilities);
+  check('the rule engine runs at scale', bigInsights.length > 0, `${((Date.now() - started) / 1000).toFixed(2)}s, ${bigInsights.length} findings`);
+  check(
+    'a 12,000-brand dropdown is capped rather than rendered whole',
+    brandOptions(bigAnalysis, bigAnalysis.brands[0].name).options.length <= 251,
+    `${brandOptions(bigAnalysis, bigAnalysis.brands[0].name).options.length} options, ${brandOptions(bigAnalysis, bigAnalysis.brands[0].name).truncated.toLocaleString('en-IN')} hidden`,
+  );
+  check(
+    'a brand outside the cap is still selectable when focused',
+    brandOptions(bigAnalysis, bigAnalysis.brands[11999].name).options.some((b) => b.name === bigAnalysis.brands[11999].name),
+  );
+
+  // A file denominated in crores: values look tiny until the unit is set.
+  const croreCsv = [
+    'BRAND_NAME,COMP_NAME,SEGMENT,MAT_VAL,PREV_MAT_VAL',
+    'Alpha,Acme,Derm,198,172',
+    'Beta,Acme,Derm,186,173',
+    'Gamma,Zeta,Derm,174,140',
+  ].join('\n');
+  const croreRaw = await parseFile(new File([croreCsv], 'crores.csv'));
+  const croreMappings = mapColumns(croreRaw);
+  const asRupees = buildDataset({ raw: croreRaw, mappings: croreMappings });
+  check('a total too small to be rupees is flagged', asRupees.valueUnitUncertain, `${(asRupees.rows.reduce((s, r) => s + (r.matValue ?? 0), 0) / 1e7).toFixed(4)} Cr`);
+  check('and raised in data health', asRupees.health.issues.some((i) => i.id === 'value-unit'));
+  check('MATLens does not silently rescale', asRupees.valueScale === 1);
+
+  const asCrores = buildDataset({ raw: croreRaw, mappings: croreMappings, valueScale: 1e7 });
+  const rupeeAnalysis = analyse(asRupees.rows);
+  const croreAnalysis = analyse(asCrores.rows);
+  check('setting the unit rescales absolute values', Math.abs(croreAnalysis.market.totalValue - 558 * 1e7) < 1, `${(croreAnalysis.market.totalValue / 1e7).toFixed(0)} Cr`);
+  check('the flag clears once the unit is set', !asCrores.valueUnitUncertain);
+  check(
+    'growth is unchanged by the unit — it is a ratio',
+    near(croreAnalysis.market.growthPct, rupeeAnalysis.market.growthPct ?? 0, 1e-9),
+  );
+  check(
+    'share is unchanged by the unit',
+    near(croreAnalysis.brands[0].sharePct, rupeeAnalysis.brands[0].sharePct ?? 0, 1e-9),
+  );
+  check('unit sales are never rescaled', asCrores.rows.every((r) => r.matUnits === null));
+
+  // Rows finer than brand are described, not mistaken for duplicates.
+  const skuCsv = [
+    'BRAND,COMPANY,SKU,SEGMENT,MAT_VAL,PREV_MAT_VAL',
+    'Alpha,Acme,10mg,Derm,500000,400000',
+    'Alpha,Acme,20mg,Derm,300000,250000',
+    'Alpha,Acme,20mg,Derm,300000,250000',
+  ].join('\n');
+  const skuDataset = await (async () => {
+    const raw = await parseFile(new File([skuCsv], 'sku.csv'));
+    return buildDataset({ raw, mappings: mapColumns(raw) });
+  })();
+  check('SKU-level rows are not misreported as duplicates', skuDataset.health.issues.some((i) => i.id === 'finer-grain'));
+  check('a genuinely identical row still is', skuDataset.health.duplicateRows === 1, `${skuDataset.health.duplicateRows} duplicate(s)`);
 
   /* ---------------------------------------------------------------- */
   const { runClientChecks } = await import('./clientCheck');

@@ -108,6 +108,22 @@ export function Overview() {
       <FilterBar />
       <ScopeNote />
 
+      {dataset.valueUnitUncertain && (
+        <div style={{ marginBottom: 18 }}>
+          <Callout tone="warning" title="Check the value unit before reading these numbers">
+            The rows in {dataset.fileName} add up to {formatValue(market.totalValue)}, which is small for a
+            pharmaceutical market. The value column may be denominated in thousands, lakhs or crores rather than
+            rupees. Growth, share and rank are ratios and are correct either way — the absolute values are not.
+            <div style={{ marginTop: 10 }}>
+              <button className="btn btn--sm" onClick={() => goTo('upload')}>
+                Set the value unit
+                <Icon name="arrowRight" size={13} />
+              </button>
+            </div>
+          </Callout>
+        </div>
+      )}
+
       <Section
         title="Executive summary"
         subtitle={

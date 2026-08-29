@@ -1,7 +1,7 @@
 {
   "name": "matlens",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "MATLens - From Market Data to Brand Decisions. A pharmaceutical MAT market-data intelligence prototype.",
   "type": "module",
   "scripts": {
@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit false --emitDeclarationOnly false --pretty",
     "gen:demo": "node scripts/generate-demo-files.mjs",
-    "verify": "node scripts/verify.mjs"
+    "verify": "node scripts/verify.mjs",
+    "convert": "node --max-old-space-size=4096 scripts/convert-basefile.mjs"
   },
   "dependencies": {
     "papaparse": "^5.4.1",
@@ -24,6 +25,7 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
+    "exceljs": "^4.4.0",
     "jsdom": "^30.0.1",
     "typescript": "^5.6.3",
     "vite": "^5.4.10"

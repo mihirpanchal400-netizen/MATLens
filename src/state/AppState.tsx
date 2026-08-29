@@ -16,7 +16,7 @@ import { generateInsights, opportunitiesFrom } from '../analytics/insightEngine'
 import { buildDataset } from '../data/buildDataset';
 import { mapColumns, overrideMapping } from '../data/columnMapper';
 import { loadDemoDataset } from '../data/demoDataset';
-import { FileParseError, parseFile } from '../data/parseFile';
+import { FileParseError, parseFile, type ParseProgress } from '../data/parseFile';
 
 interface LoadError {
   message: string;
@@ -29,6 +29,8 @@ interface AppStateValue {
   filters: Filters;
   focusBrandName: string | null;
   loading: boolean;
+  /** Non-null while a file is being read, for the upload progress indicator. */
+  progress: ParseProgress | null;
   error: LoadError | null;
   /** Rows surviving the current filter selection. */
   rows: NormalizedRow[];
@@ -45,6 +47,7 @@ interface AppStateValue {
   loadDemo: () => void;
   loadFile: (file: File) => Promise<void>;
   remapColumn: (sourceColumn: string, field: FieldKey | null) => void;
+  setValueScale: (scale: number) => void;
   resetMapping: () => void;
   clearDataset: () => void;
   dismissError: () => void;
@@ -67,6 +70,7 @@ export function AppStateProvider({
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [focusBrandName, setFocusBrandName] = useState<string | null>(initialDataset?.defaultFocusBrand ?? null);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState<ParseProgress | null>(null);
   const [error, setError] = useState<LoadError | null>(null);
 
   const adopt = useCallback((next: Dataset, landOn: PageId) => {
@@ -99,8 +103,12 @@ export function AppStateProvider({
     async (file: File) => {
       setLoading(true);
       setError(null);
+      setProgress({ rows: 0, fraction: 0, stage: 'reading' });
       try {
-        const raw = await parseFile(file);
+        // Yield to the browser between chunks so progress actually paints.
+        const raw = await parseFile(file, (update) => setProgress(update));
+        setProgress({ rows: raw.rows.length, fraction: 1, stage: 'organising' });
+        await new Promise((resolve) => window.setTimeout(resolve, 0));
         const mappings = mapColumns(raw);
         const next = buildDataset({ raw, mappings });
 
@@ -131,6 +139,7 @@ export function AppStateProvider({
         }
       } finally {
         setLoading(false);
+        setProgress(null);
       }
     },
     [adopt],
@@ -147,6 +156,7 @@ export function AppStateProvider({
           isSynthetic: current.isSynthetic,
           defaultFocusBrand: null,
           notes: current.notes,
+          valueScale: current.valueScale,
         });
         setFocusBrandName((name) =>
           name && rebuilt.rows.some((r) => r.brand === name) ? name : rebuilt.defaultFocusBrand,
@@ -157,6 +167,20 @@ export function AppStateProvider({
     [],
   );
 
+  const setValueScale = useCallback((scale: number) => {
+    setDataset((current) => {
+      if (!current) return current;
+      return buildDataset({
+        raw: current.raw,
+        mappings: current.mappings,
+        isSynthetic: current.isSynthetic,
+        defaultFocusBrand: current.defaultFocusBrand,
+        notes: current.notes,
+        valueScale: scale,
+      });
+    });
+  }, []);
+
   const resetMapping = useCallback(() => {
     setDataset((current) => {
       if (!current) return current;
@@ -166,6 +190,7 @@ export function AppStateProvider({
         isSynthetic: current.isSynthetic,
         defaultFocusBrand: current.isSynthetic ? current.defaultFocusBrand : null,
         notes: current.notes,
+        valueScale: current.valueScale,
       });
       setFocusBrandName(rebuilt.defaultFocusBrand);
       return rebuilt;
@@ -221,6 +246,7 @@ export function AppStateProvider({
     filters,
     focusBrandName,
     loading,
+    progress,
     error,
     rows,
     analysis,
@@ -235,6 +261,7 @@ export function AppStateProvider({
     loadDemo,
     loadFile,
     remapColumn,
+    setValueScale,
     resetMapping,
     clearDataset,
     dismissError: () => setError(null),

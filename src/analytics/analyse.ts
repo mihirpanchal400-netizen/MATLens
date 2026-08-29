@@ -274,6 +274,27 @@ export function analyse(rows: NormalizedRow[]): Analysis {
   };
 }
 
+/**
+ * Brands for a dropdown. A national basefile can hold tens of thousands of
+ * brands, and a native select with that many options locks the tab, so the list
+ * is capped at the largest N by value — with the current selection always kept
+ * in it, however small that brand is. Anything outside the cap is reachable
+ * through search on the Competitor Intelligence screen.
+ */
+export function brandOptions(
+  analysis: Analysis,
+  focusName: string | null,
+  limit = 250,
+): { options: EntityMetrics[]; truncated: number } {
+  if (analysis.brands.length <= limit) return { options: analysis.brands, truncated: 0 };
+  const top = analysis.brands.slice(0, limit);
+  if (focusName && !top.some((b) => b.name === focusName)) {
+    const focus = analysis.brands.find((b) => b.name === focusName);
+    if (focus) top.push(focus);
+  }
+  return { options: top, truncated: analysis.brands.length - limit };
+}
+
 export function findBrand(analysis: Analysis, name: string | null): EntityMetrics | null {
   if (!name) return null;
   return analysis.brands.find((b) => b.name === name) ?? null;

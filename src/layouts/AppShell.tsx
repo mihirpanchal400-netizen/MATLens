@@ -3,6 +3,7 @@ import type { PageId } from '../types';
 import { useApp } from '../state/AppState';
 import { Icon, type IconName } from '../components/Icon';
 import { Badge } from '../components/ui';
+import { brandOptions } from '../analytics/analyse';
 import { formatValue } from '../utils/format';
 
 interface NavEntry {
@@ -49,6 +50,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { page, goTo, dataset, analysis, insights, focusBrandName, setFocusBrand } = useApp();
   const meta = PAGE_TITLES[page];
   const attentionCount = insights.filter((i) => i.severity === 'critical' || i.severity === 'serious').length;
+  const brands = analysis ? brandOptions(analysis, focusBrandName) : { options: [], truncated: 0 };
 
   return (
     <div className="shell">
@@ -127,12 +129,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   value={focusBrandName ?? ''}
                   onChange={(event) => setFocusBrand(event.target.value || null)}
                   style={{ maxWidth: 200 }}
+                  title={
+                    brands.truncated
+                      ? `Showing the ${brands.options.length.toLocaleString('en-IN')} largest brands. Search for any other brand on the Competitor Intelligence screen and click its row.`
+                      : undefined
+                  }
                 >
-                  {analysis.brands.map((brand) => (
+                  {brands.options.map((brand) => (
                     <option key={brand.name} value={brand.name}>
                       {brand.name}
                     </option>
                   ))}
+                  {brands.truncated > 0 && (
+                    <option value="" disabled>
+                      … {brands.truncated.toLocaleString('en-IN')} smaller brands — search in Competitor Intelligence
+                    </option>
+                  )}
                 </select>
               </label>
             )}

@@ -12,6 +12,39 @@ import { mappedColumnFor, parseNumeric } from './columnMapper';
 
 const MAX_EXAMPLES = 5;
 
+/**
+ * Market extracts are not always denominated in rupees. A PharmaTrac-style IPM
+ * basefile is commonly in crores; other exports use thousands or lakhs. Reading
+ * crores as rupees understates a market by seven orders of magnitude, so the
+ * unit is an explicit, user-visible setting rather than an assumption.
+ */
+export const VALUE_SCALES: Array<{ scale: number; label: string; short: string }> = [
+  { scale: 1, label: 'Rupees (₹)', short: '₹' },
+  { scale: 1e3, label: "Thousands (₹ '000)", short: "₹ '000" },
+  { scale: 1e5, label: 'Lakhs (₹ Lakh)', short: '₹ L' },
+  { scale: 1e7, label: 'Crores (₹ Cr)', short: '₹ Cr' },
+];
+
+export function valueScaleLabel(scale: number): string {
+  return VALUE_SCALES.find((s) => s.scale === scale)?.label ?? 'Rupees (₹)';
+}
+
+/**
+ * A pharmaceutical market — even a single therapy area — sits well above ₹10 Cr.
+ * A total below that means the value column is almost certainly not in rupees.
+ *
+ * MATLens deliberately does not guess *which* unit it is: thousands, lakhs and
+ * crores are each plausible for a given file, and picking wrongly misstates
+ * every figure. It flags the uncertainty and shows the user the total under each
+ * option instead, which makes the right answer obvious to anyone who knows the
+ * market.
+ */
+const PLAUSIBLE_MARKET_FLOOR = 10 * 1e7;
+
+function valueUnitLooksWrong(totalInRupees: number): boolean {
+  return totalInRupees > 0 && totalInRupees < PLAUSIBLE_MARKET_FLOOR;
+}
+
 interface IssueBucket {
   severity: DataIssue['severity'];
   title: string;
@@ -77,8 +110,10 @@ export function buildDataset(params: {
   isSynthetic?: boolean;
   defaultFocusBrand?: string | null;
   notes?: string[];
+  /** Multiplier converting the file's value column into rupees. */
+  valueScale?: number;
 }): Dataset {
-  const { raw, mappings, isSynthetic = false } = params;
+  const { raw, mappings, isSynthetic = false, valueScale = 1 } = params;
   const col = (field: FieldKey) => mappedColumnFor(mappings, field);
 
   const brandCol = col('brand');
@@ -99,6 +134,7 @@ export function buildDataset(params: {
   const issues = new IssueCollector();
   const rows: NormalizedRow[] = [];
   const seen = new Map<string, number>();
+  const grainKeys = new Set<string>();
   let duplicateRows = 0;
   let derivedPrevCount = 0;
   const periods = new Set<string>();
@@ -173,26 +209,32 @@ export function buildDataset(params: {
       );
     }
 
-    const key = [
-      brand.toLowerCase(),
-      (cellText(raws, companyCol) ?? '').toLowerCase(),
-      (cellText(raws, regionCol) ?? '').toLowerCase(),
-      (cellText(raws, segmentCol) ?? '').toLowerCase(),
-      (cellText(raws, moleculeCol) ?? '').toLowerCase(),
-    ].join('|');
+    // A duplicate is a row identical across *every* source column. Rows that
+    // differ only in an unmapped column — SKU, pack, strength — are a finer
+    // grain, not a defect, and are counted separately below.
+    const key = raw.columns.map((column) => String(raws[column] ?? '').trim().toLowerCase()).join('');
     const previousRow = seen.get(key);
     if (previousRow !== undefined) {
       duplicateRows += 1;
       issues.add(
         'duplicate-row',
         'warning',
-        'Duplicate brand / company / region combinations',
-        'The same brand appears more than once for an identical dimension combination. Values are summed, which may double-count if the export already aggregated them.',
+        'Identical rows repeated in the file',
+        `These rows match an earlier row in every column, so their values are counted twice in every total. The first occurrence of each is at file row ${previousRow}.`,
         rowNumber,
       );
     } else {
       seen.set(key, rowNumber);
     }
+
+    const grainKey = [
+      brand.toLowerCase(),
+      (cellText(raws, companyCol) ?? '').toLowerCase(),
+      (cellText(raws, regionCol) ?? '').toLowerCase(),
+      (cellText(raws, segmentCol) ?? '').toLowerCase(),
+      (cellText(raws, moleculeCol) ?? '').toLowerCase(),
+    ].join('');
+    grainKeys.add(grainKey);
 
     const period = cellText(raws, periodCol);
     if (period) periods.add(period);
@@ -205,8 +247,8 @@ export function buildDataset(params: {
       therapy: cellText(raws, therapyCol),
       segment: cellText(raws, segmentCol),
       region: cellText(raws, regionCol),
-      matValue,
-      prevMatValue,
+      matValue: matValue * valueScale,
+      prevMatValue: prevMatValue === null ? null : prevMatValue * valueScale,
       matUnits: unitsCol ? parseNumeric(raws[unitsCol]) : null,
       prevMatUnits: prevUnitsCol ? parseNumeric(raws[prevUnitsCol]) : null,
       reportedGrowthPct,
@@ -214,6 +256,18 @@ export function buildDataset(params: {
       reportedRank: rankCol ? parseNumeric(raws[rankCol]) : null,
     });
   });
+
+  // Row grain finer than brand (SKU- or pack-level extracts) is normal, not a
+  // defect — but the user should know their rows are being summed.
+  if (rows.length > grainKeys.size && grainKeys.size > 0) {
+    issues.addSummary(
+      'finer-grain',
+      'info',
+      'Rows are finer-grained than brand',
+      `${rows.length.toLocaleString('en-IN')} rows describe ${grainKeys.size.toLocaleString('en-IN')} brand and dimension combinations — typical of a SKU- or pack-level extract. MATLens sums them to brand level, which is the intended behaviour.`,
+      rows.length - grainKeys.size,
+    );
+  }
 
   // Dimension completeness — a warning, never a blocker.
   const dimensionChecks: Array<[FieldKey, string | null, keyof NormalizedRow]> = [
@@ -234,6 +288,18 @@ export function buildDataset(params: {
         blanks,
       );
     }
+  }
+
+  const totalValue = rows.reduce((sum, row) => sum + (row.matValue ?? 0), 0);
+  const unitUncertain = valueUnitLooksWrong(totalValue);
+  if (unitUncertain) {
+    issues.addSummary(
+      'value-unit',
+      'warning',
+      'The value column may not be in rupees',
+      `Adding up every row gives ${(totalValue / 1e7).toFixed(2)} Cr at the current unit setting, which is small for a pharmaceutical market. Market audits are often denominated in thousands, lakhs or crores. Set the value unit on this screen — growth, share and rank are ratios and will not change.`,
+      rows.length,
+    );
   }
 
   const emptyColumns = raw.columns.filter((c) =>
@@ -320,7 +386,9 @@ export function buildDataset(params: {
     loadedAt: Date.now(),
     isSynthetic,
     period: periods.size === 1 ? [...periods][0] : periods.size > 1 ? `${periods.size} periods in file` : null,
-    valueUnitLabel: 'INR',
+    valueScale,
+    valueScaleLabel: valueScaleLabel(valueScale),
+    valueUnitUncertain: unitUncertain,
     raw,
     mappings,
     rows,

@@ -183,6 +183,7 @@ Note what is absent: any claim about *why*. A MAT file cannot support one.
 | Excel | SheetJS (`xlsx`), lazy-loaded | Only fetched when an actual workbook is opened |
 | CSV | Papa Parse | Tolerant of real-world exports |
 | Backend | None | Files are parsed in the browser and never leave the machine |
+| Large files | ExcelJS streaming (dev-only CLI) | Converts basefiles past the browser's ceiling without loading them into memory |
 | AI | None | Every calculation and every rule is deterministic |
 
 Colour is not decoration: the categorical chart palette is a validated, colour-vision-deficiency-safe
@@ -243,8 +244,9 @@ npm install       # install dependencies
 npm run dev       # start the dev server (http://localhost:5173)
 npm run build     # typecheck and build for production
 npm run preview   # serve the production build
-npm run verify    # run the full verification suite (150 checks)
+npm run verify    # run the full verification suite (170 checks)
 npm run gen:demo  # regenerate the synthetic files in public/demo-data
+npm run convert   # convert a large basefile into a MATLens-ready CSV (see below)
 ```
 
 Requires Node 18 or newer. Nothing else — no database, no API keys, no environment file.
@@ -265,6 +267,47 @@ Requires Node 18 or newer. Nothing else — no database, no API keys, no environ
 11. Server-side render of all 9 screens against 3 very different datasets
 12. A jsdom walkthrough of the real app: load demo → visit every screen → switch focus brand →
     apply and clear a filter → open a calculation modal, asserting **no console errors**
+13. Scale: a 60,000-row CSV parsed and analysed with integrity intact, a 12,000-brand dropdown capped
+    rather than rendered whole, a crore-denominated file flagged and rescaled, and SKU-level rows
+    distinguished from genuine duplicates
+
+## Large basefiles
+
+MATLens reads CSV and Excel files up to 500 MB in the browser, streaming large CSVs in chunks so the
+text never becomes one string. Beyond that there is a hard limit that no setting can raise:
+
+> **JavaScript's maximum string length is 512 MB.** A worksheet whose XML exceeds it cannot be opened
+> by any browser or any Node build - the engine cannot hold it. Spreadsheet parsers drop such a sheet
+> *silently*: it stays in the workbook's sheet list but never materialises. MATLens detects exactly
+> that condition and says so, rather than failing mysteriously.
+
+A real example: a 211 MB PharmaTrac IPM basefile - 98,249 SKU rows x 180 columns - decompresses to a
+672 MB worksheet, 129 MB past the wall.
+
+The repository ships a converter for this case. It streams the workbook row by row, never holding it
+in memory, keeps only the columns MATLens analyses, and sums SKU rows to brand level:
+
+```bash
+npm run convert -- --in "C:\path\to\BASEFILE.xlsx" --list        # show every column
+npm run convert -- --in "C:\path\to\BASEFILE.xlsx"               # write a MATLens-ready CSV
+npm run convert -- --in "...xlsx" --therapy DERMATOLOGY            # narrow to one therapy area
+npm run convert -- --in "...xlsx" --sku-level                      # keep SKU rows instead of summing
+```
+
+On that 211 MB basefile it produces a **9 MB CSV with 65,825 brand-level rows in about 50 seconds**,
+which MATLens then parses in under half a second. Everything runs locally; nothing is uploaded.
+
+The converter auto-detects the two most recent MAT value and unit columns by reading the period out of
+headers like `Mar-26 MAT Sales Value`, and it never writes a zero where a value was missing - a brand
+with no history is written blank, because "unknown" and "zero" are different facts.
+
+### Value units
+
+Market audits are frequently denominated in thousands, lakhs or crores rather than rupees - that IPM
+basefile is in crores, where reading the numbers as rupees understates the market by seven orders of
+magnitude. MATLens flags a total too small to plausibly be a pharmaceutical market and shows what the
+market would total under each unit, so the right one is obvious. It never guesses on your behalf.
+Growth, share and rank are ratios and are unaffected by the setting; only absolute values change.
 
 ## Screenshots
 
@@ -290,6 +333,9 @@ own file.
 - Two data points cannot establish a trend. Every finding compares one period to one prior period.
 - Correlation in a market extract is not causation. MATLens names movements, never their causes.
 - Share and rank are computed within the loaded rows. A partial extract yields a partial market.
+- Share changes sum to zero only when every brand has a previous period; new entrants make the total
+  slightly negative, which is arithmetic rather than error.
+- A worksheet larger than 512 MB of XML cannot be opened in a browser at all. Use the converter.
 - Value data cannot separate price, pack mix and volume without unit data — and only approximates
   the split with it.
 - Stock movements, returns, tender timing and channel shifts are invisible unless the file contains them.

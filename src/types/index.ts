@@ -121,7 +121,11 @@ export interface Dataset {
   isSynthetic: boolean;
   /** e.g. "MAT Aug 2026" — read from the file where present. */
   period: string | null;
-  valueUnitLabel: string;
+  /** Multiplier converting the file's value column into rupees. */
+  valueScale: number;
+  valueScaleLabel: string;
+  /** True when the totals are too small to plausibly be rupees, so the unit needs confirming. */
+  valueUnitUncertain: boolean;
   raw: RawTable;
   mappings: ColumnMapping[];
   rows: NormalizedRow[];
