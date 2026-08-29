@@ -31,7 +31,9 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # 24 matches the version the suite is developed and verified on.
+          # jsdom's undici dependency needs a newer Node than 20 provides.
+          node-version: 24
           cache: npm
 
       - name: Install dependencies

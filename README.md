@@ -276,7 +276,9 @@ npm run gen:demo  # regenerate the synthetic files in public/demo-data
 npm run convert   # convert a large basefile into a MATLens-ready CSV (see below)
 ```
 
-Requires Node 18 or newer. Nothing else — no database, no API keys, no environment file.
+Requires Node 20.18 or newer (the app needs `DecompressionStream` for large workbooks; the
+verification suite needs a Node recent enough for jsdom). Nothing else — no database, no API keys,
+no environment file.
 
 ### Verification
 
