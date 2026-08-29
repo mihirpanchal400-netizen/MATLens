@@ -52,6 +52,10 @@ export interface RawTable {
   sheetName?: string;
   columns: string[];
   rows: Record<string, unknown>[];
+  /** Columns present in the source but not retained, on very wide exports. */
+  skippedColumns?: string[];
+  /** Rows in the source sheet, including any dropped as blank. */
+  sheetRowCount?: number;
 }
 
 export interface NormalizedRow {

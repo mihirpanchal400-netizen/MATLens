@@ -6,6 +6,46 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ---
 
+## [1.2.0] - 2026-08-29
+
+Large workbooks now open in the app itself. The converter added in 1.1.0 was a workaround; this is
+the fix.
+
+### Added
+
+- **Streaming XLSX reader** (`src/data/xlsxStream.ts`), used automatically for workbooks over 20 MB.
+  Reads the ZIP central directory off the File, inflates entries through the platform's native
+  `DecompressionStream`, and scans sheet XML row by row so the worksheet is never held as a string -
+  removing the 512 MB ceiling that made these files unopenable. Handles shared strings, inline
+  strings, sparse cells, ZIP64, and picks the sheet with the most data. No new dependency.
+- **Column projection for very wide exports.** A 180-column basefile is mostly monthly, quarterly and
+  YTD series MATLens does not analyse. Dimensions and MAT measures are retained; the rest are read
+  past rather than held in memory. What was kept and what was skipped is reported on the Upload
+  screen, with the skipped list expandable.
+- **Period-aware column mapping.** Where a file carries the same measure for several years, the
+  mapper reads the period from each header (`Mar-26 MAT Sales Value`, `MAT August 2026`, `FY24`) and
+  assigns the most recent as the current period and the one before it as the comparison, setting
+  earlier periods aside with the reason shown. A YTD or monthly series never displaces a MAT series.
+- 27 further checks in `npm run verify` (197 total): the streaming reader compared cell-by-cell
+  against SheetJS on the same workbook, and period-aware mapping on a basefile header shape.
+
+### Changed
+
+- Excel dispatch: workbooks over 20 MB stream; smaller ones use SheetJS and fall back to streaming if
+  the sheet turns out not to have materialised. `.xls` continues to use SheetJS, as the old binary
+  format is not a ZIP archive.
+- Exact-alias matching now breaks ties by position in the synonym list, so a column named `Brand`
+  deterministically beats one named `SKU` for the brand field.
+
+### Fixed
+
+- Unit columns named `Mar-26 MAT Sales Unit` were matched by no pattern and left unmapped; the unit
+  synonym list now covers the `... Sales Unit` convention.
+- `SKU Launch Date` was being mapped to Period. A per-row date is not the MAT period of an extract,
+  and the period field now rejects launch, expiry, start and end dates.
+
+---
+
 ## [1.1.0] - 2026-08-29
 
 Large-file support, driven by a real 211 MB market basefile that the first release could not open.

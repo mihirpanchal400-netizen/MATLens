@@ -1,5 +1,6 @@
 import Papa from 'papaparse';
 import type { RawTable } from '../types';
+import { canStreamXlsx, readXlsxStreaming, XlsxStreamError } from './xlsxStream';
 
 export class FileParseError extends Error {
   readonly hint: string;
@@ -21,8 +22,16 @@ export class FileParseError extends Error {
  */
 const MAX_BYTES = 500 * 1024 * 1024;
 
-/** Above this, a workbook is at real risk of exceeding the string ceiling once decompressed. */
-const XLSX_CAUTION_BYTES = 80 * 1024 * 1024;
+/**
+ * Above this, a workbook is read with the streaming reader rather than SheetJS.
+ * SheetJS is faster and more tolerant on ordinary files; it simply cannot open a
+ * sheet whose XML passes the 512 MB string ceiling, and a compressed workbook
+ * this size routinely does.
+ */
+const XLSX_STREAM_BYTES = 20 * 1024 * 1024;
+
+/** Above this, a workbook is large enough that the user is warned it will take a while. */
+const XLSX_CAUTION_BYTES = 60 * 1024 * 1024;
 
 /** Above this, CSV is parsed in streaming mode with progress rather than in one pass. */
 const STREAM_THRESHOLD_BYTES = 8 * 1024 * 1024;
@@ -43,6 +52,13 @@ export interface ParseProgress {
 }
 
 export type ProgressHandler = (progress: ParseProgress) => void;
+
+/** Internal signal: SheetJS could not materialise the sheet, so streaming should take over. */
+class OversizedSheetError extends Error {
+  constructor(readonly sheets: string) {
+    super('worksheet exceeded the string ceiling');
+  }
+}
 
 const CONVERTER_HINT =
   'Run the bundled converter, which streams the workbook without ever holding it in memory:  npm run convert -- --in "<path to your file>"  — it writes a slim CSV with just the columns MATLens analyses, which opens instantly.';
@@ -161,7 +177,16 @@ async function parseCsvWhole(file: File): Promise<RawTable> {
   return { fileName: file.name, columns, rows };
 }
 
-async function parseExcel(file: File, onProgress?: ProgressHandler): Promise<RawTable> {
+/**
+ * Reads a workbook with the streaming reader, which never holds the sheet XML as
+ * a string and so has no size ceiling beyond available memory.
+ */
+async function parseExcelStreaming(file: File, onProgress?: ProgressHandler): Promise<RawTable> {
+  const table = await readXlsxStreaming(file, (progress) => onProgress?.(progress));
+  return table;
+}
+
+async function parseExcelWhole(file: File, onProgress?: ProgressHandler): Promise<RawTable> {
   // Loaded on demand: the spreadsheet parser is a third of the bundle and most
   // sessions either start with the demo dataset or upload a CSV.
   onProgress?.({ rows: 0, fraction: 0, stage: 'reading' });
@@ -198,10 +223,9 @@ async function parseExcel(file: File, onProgress?: ProgressHandler): Promise<Raw
   const missing = workbook.SheetNames.filter((name) => !workbook.Sheets[name]);
 
   if (!materialised.length) {
-    throw new FileParseError(
-      `${file.name} is too large for a browser to open.`,
-      `Its worksheet${workbook.SheetNames.length === 1 ? '' : 's'} (${workbook.SheetNames.join(', ')}) exceeded JavaScript's 512 MB maximum string length once decompressed, so the parser could not load ${workbook.SheetNames.length === 1 ? 'it' : 'any of them'}. This is a limit of the browser engine, not of MATLens. ${CONVERTER_HINT}`,
-    );
+    // The sheet exceeded the string ceiling and was dropped silently. The
+    // streaming reader has no such ceiling, so hand over to it rather than fail.
+    throw new OversizedSheetError(workbook.SheetNames.join(', '));
   }
 
   // Prefer the sheet with the most data rather than blindly the first — pivot
@@ -285,14 +309,35 @@ export async function parseFile(file: File, onProgress?: ProgressHandler): Promi
         ? await parseCsvStreaming(file, onProgress)
         : await parseCsvWhole(file);
     }
-    if (extension === 'xlsx' || extension === 'xls' || extension === 'xlsm') {
-      if (file.size > XLSX_CAUTION_BYTES) {
-        onProgress?.({ rows: 0, fraction: 0, stage: 'reading' });
+    if (extension === 'xlsx' || extension === 'xlsm') {
+      // Large workbooks go straight to the streaming reader. Smaller ones use
+      // SheetJS, which is quicker and more forgiving, and fall back to streaming
+      // if it turns out the sheet could not be materialised.
+      if (file.size > XLSX_STREAM_BYTES && canStreamXlsx()) {
+        return await parseExcelStreaming(file, onProgress);
       }
-      return await parseExcel(file, onProgress);
+      try {
+        return await parseExcelWhole(file, onProgress);
+      } catch (error) {
+        if (error instanceof OversizedSheetError && canStreamXlsx()) {
+          return await parseExcelStreaming(file, onProgress);
+        }
+        throw error;
+      }
+    }
+    if (extension === 'xls') {
+      // The old binary format is not a ZIP archive, so streaming does not apply.
+      return await parseExcelWhole(file, onProgress);
     }
   } catch (error) {
     if (error instanceof FileParseError) throw error;
+    if (error instanceof XlsxStreamError) throw new FileParseError(error.message, error.hint);
+    if (error instanceof OversizedSheetError) {
+      throw new FileParseError(
+        `${file.name} is too large for this browser to open.`,
+        `Its worksheet (${error.sheets}) exceeds JavaScript's 512 MB maximum string length once decompressed, and this browser does not support streaming decompression. ${CONVERTER_HINT}`,
+      );
+    }
     const message = error instanceof Error ? error.message : '';
     if (/string length|out of memory|Array buffer allocation/i.test(message)) {
       throw new FileParseError(
@@ -318,7 +363,7 @@ export function isLargeWorkbook(file: File): boolean {
   return (extension === 'xlsx' || extension === 'xlsm' || extension === 'xls') && file.size > XLSX_CAUTION_BYTES;
 }
 
-export const LIMITS = { MAX_BYTES, XLSX_CAUTION_BYTES, STREAM_THRESHOLD_BYTES, CONVERTER_HINT };
+export const LIMITS = { MAX_BYTES, XLSX_CAUTION_BYTES, XLSX_STREAM_BYTES, STREAM_THRESHOLD_BYTES, CONVERTER_HINT };
 
 /** Loads one of the bundled demo variants from /public/demo-data. */
 export async function fetchDemoFile(path: string, fileName: string): Promise<File> {

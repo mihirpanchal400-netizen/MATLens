@@ -12,7 +12,8 @@ import { join } from 'node:path';
 import { analyse, applyFilters, brandOptions } from '../src/analytics/analyse';
 import { generateInsights, opportunitiesFrom } from '../src/analytics/insightEngine';
 import { buildDataset } from '../src/data/buildDataset';
-import { mapColumns } from '../src/data/columnMapper';
+import { headerPeriod, mapColumns } from '../src/data/columnMapper';
+import { canStreamXlsx, readXlsxStreaming } from '../src/data/xlsxStream';
 import { loadDemoDataset } from '../src/data/demoDataset';
 import { parseFile } from '../src/data/parseFile';
 import { EMPTY_FILTERS, type Dataset } from '../src/types';
@@ -416,6 +417,111 @@ async function main() {
   })();
   check('SKU-level rows are not misreported as duplicates', skuDataset.health.issues.some((i) => i.id === 'finer-grain'));
   check('a genuinely identical row still is', skuDataset.health.duplicateRows === 1, `${skuDataset.health.duplicateRows} duplicate(s)`);
+
+  /* ---------------------------------------------------------------- */
+  heading('14. Streaming XLSX reader — the path large workbooks take');
+
+  check('the platform supports streaming decompression', canStreamXlsx());
+
+  // A workbook written by SheetJS, then read back by the streaming reader. The two
+  // must agree exactly: same headers, same rows, same values, same types.
+  const XLSX = await import('xlsx');
+  const trickyRows = [
+    { BRAND_NAME: 'Alpha & Co', COMP_NAME: 'Acme <Pharma>', SEGMENT: 'Derm', MAT_VAL: 1234567.89, PREV_MAT_VAL: 1000000 },
+    { BRAND_NAME: 'Beta "Quoted"', COMP_NAME: 'Zeta', SEGMENT: 'Derm', MAT_VAL: 0, PREV_MAT_VAL: 5 },
+    { BRAND_NAME: 'Gamma — dash', COMP_NAME: 'Zeta', SEGMENT: 'Cardio', MAT_VAL: 42, PREV_MAT_VAL: null },
+    { BRAND_NAME: 'Delta ünïcode', COMP_NAME: '', SEGMENT: 'Cardio', MAT_VAL: -17.5, PREV_MAT_VAL: 20 },
+  ];
+  for (let i = 0; i < 2500; i += 1) {
+    trickyRows.push({
+      BRAND_NAME: `Brand ${i}`,
+      COMP_NAME: `Company ${i % 50}`,
+      SEGMENT: `Segment ${i % 7}`,
+      MAT_VAL: 1000 + i,
+      PREV_MAT_VAL: 900 + i,
+    });
+  }
+  const columnsOrder = ['BRAND_NAME', 'COMP_NAME', 'SEGMENT', 'MAT_VAL', 'PREV_MAT_VAL'];
+  const book = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(book, XLSX.utils.json_to_sheet(trickyRows, { header: columnsOrder }), 'Master Data');
+  const workbookBytes = XLSX.write(book, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer;
+  const workbookFile = new File([workbookBytes], 'roundtrip.xlsx');
+
+  const streamed = await readXlsxStreaming(workbookFile);
+  check('streaming reader finds the sheet by name', streamed.sheetName === 'Master Data', String(streamed.sheetName));
+  check('streaming reader reads every row', streamed.rows.length === trickyRows.length, `${streamed.rows.length} of ${trickyRows.length}`);
+  check('streaming reader reads every column', streamed.columns.join(',') === columnsOrder.join(','), streamed.columns.join(','));
+
+  const sheetJsTable = await parseFile(new File([workbookBytes], 'roundtrip-sheetjs.xlsx'));
+  check('row counts agree with SheetJS', streamed.rows.length === sheetJsTable.rows.length, `${streamed.rows.length} vs ${sheetJsTable.rows.length}`);
+  const mismatches = streamed.rows.filter((row, index) => {
+    const other = sheetJsTable.rows[index];
+    return columnsOrder.some((column) => String(row[column] ?? '') !== String(other?.[column] ?? ''));
+  });
+  check('every cell agrees with SheetJS', mismatches.length === 0, `${mismatches.length} mismatched row(s)`);
+
+  check('ampersands and angle brackets survive', String(streamed.rows[0].BRAND_NAME) === 'Alpha & Co' && String(streamed.rows[0].COMP_NAME) === 'Acme <Pharma>');
+  check('quotes survive', String(streamed.rows[1].BRAND_NAME) === 'Beta "Quoted"');
+  check('non-ASCII survives', String(streamed.rows[3].BRAND_NAME) === 'Delta ünïcode');
+  check('a genuine zero is kept, not treated as blank', streamed.rows[1].MAT_VAL === 0);
+  check('negatives and decimals survive', streamed.rows[3].MAT_VAL === -17.5 && streamed.rows[0].MAT_VAL === 1234567.89);
+  check('an empty cell reads as blank, not as a neighbour', String(streamed.rows[3].COMP_NAME ?? '') === '');
+
+  const streamedDataset = buildDataset({ raw: streamed, mappings: mapColumns(streamed) });
+  check('a streamed workbook flows through the whole pipeline', analyse(streamedDataset.rows).brands.length > 0);
+
+  /* ---------------------------------------------------------------- */
+  heading('15. Period-aware column mapping — multi-period basefiles');
+
+  check('a month-year header is recognised', headerPeriod('Mar-26 MAT Sales Value')?.label === 'Mar-26');
+  check('a spelled-out month is recognised', headerPeriod('MAT August 2026 Value')?.label === 'Aug-26');
+  check('a fiscal-year header is recognised', headerPeriod('FY24 Sales')?.label === 'FY24');
+  check('a header with no period returns nothing', headerPeriod('Brand Name') === null);
+  check('periods sort chronologically', (headerPeriod('Mar-26')?.key ?? 0) > (headerPeriod('Mar-25')?.key ?? 0));
+
+  // The shape of a real basefile: five MAT periods for value and for units, plus
+  // YTD and monthly series that must not be mistaken for the MAT series.
+  const basefileHeaders = [
+    'Brand', 'Company', 'Therapy', 'Class', 'SKU', 'SKU Launch Date',
+    'Mar-22 MAT Sales Value', 'Mar-23 MAT Sales Value', 'Mar-24 MAT Sales Value',
+    'Mar-25 MAT Sales Value', 'Mar-26 MAT Sales Value',
+    'Mar-22 MAT Sales Unit', 'Mar-25 MAT Sales Unit', 'Mar-26 MAT Sales Unit',
+    'Mar-25 APR YTD Sales Value', 'Mar-26 APR YTD Sales Value',
+    'Jan-26 Sales Value', 'Feb-26 Sales Value',
+  ];
+  const basefileRows = Array.from({ length: 30 }, (_, i) => {
+    const row: Record<string, unknown> = {
+      Brand: `Brand ${i}`,
+      Company: `Company ${i % 5}`,
+      Therapy: 'DERMATOLOGY',
+      Class: 'ANTIFUNGALS',
+      SKU: `${i} 10mg`,
+      'SKU Launch Date': '2019-04-01',
+    };
+    for (const header of basefileHeaders.slice(6)) row[header] = 100 + i;
+    return row;
+  });
+  const basefileMappings = mapColumns({ fileName: 'basefile.csv', columns: basefileHeaders, rows: basefileRows });
+  const mappedTo = (field: string) => basefileMappings.find((m) => m.field === field)?.sourceColumn ?? null;
+
+  check('the most recent MAT value period becomes MAT Value', mappedTo('matValue') === 'Mar-26 MAT Sales Value', String(mappedTo('matValue')));
+  check('the one before it becomes Previous MAT Value', mappedTo('prevMatValue') === 'Mar-25 MAT Sales Value', String(mappedTo('prevMatValue')));
+  check('the most recent MAT unit period becomes MAT Units', mappedTo('matUnits') === 'Mar-26 MAT Sales Unit', String(mappedTo('matUnits')));
+  check('the one before it becomes Previous MAT Units', mappedTo('prevMatUnits') === 'Mar-25 MAT Sales Unit', String(mappedTo('prevMatUnits')));
+  check(
+    'earlier periods are set aside, not left competing',
+    ['Mar-22 MAT Sales Value', 'Mar-23 MAT Sales Value', 'Mar-24 MAT Sales Value'].every(
+      (column) => basefileMappings.find((m) => m.sourceColumn === column)?.field === null,
+    ),
+  );
+  check(
+    'and the reason says why',
+    /Earlier value period/.test(basefileMappings.find((m) => m.sourceColumn === 'Mar-22 MAT Sales Value')?.reason ?? ''),
+    basefileMappings.find((m) => m.sourceColumn === 'Mar-22 MAT Sales Value')?.reason,
+  );
+  check('a YTD series does not displace the MAT series', mappedTo('matValue') !== 'Mar-26 APR YTD Sales Value');
+  check('a per-row launch date is not mistaken for the MAT period', mappedTo('period') !== 'SKU Launch Date', String(mappedTo('period')));
+  check('"Brand" wins over "SKU" for the brand field', mappedTo('brand') === 'Brand', String(mappedTo('brand')));
 
   /* ---------------------------------------------------------------- */
   const { runClientChecks } = await import('./clientCheck');

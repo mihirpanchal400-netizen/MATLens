@@ -1,7 +1,7 @@
 {
   "name": "matlens",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "MATLens - From Market Data to Brand Decisions. A pharmaceutical MAT market-data intelligence prototype.",
   "type": "module",
   "scripts": {

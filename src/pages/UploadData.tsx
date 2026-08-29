@@ -165,29 +165,39 @@ export function UploadData() {
 
       <div style={{ marginBottom: 22 }}>
         <Card
-          title="Working with a very large basefile"
-          subtitle="Why a 200 MB market extract is not simply a bigger version of a 20 MB one"
+          title="Large basefiles open here directly"
+          subtitle="A full market export, with every SKU and five years of columns, is read without leaving the browser"
         >
           <p className="t-sub">
-            A full market basefile — every SKU in the market, five years of monthly, quarterly, YTD and MAT columns —
-            can decompress to a worksheet larger than <strong>512 MB</strong>, which is JavaScript's maximum string
-            length. Past that point no browser can open the sheet at all: the engine cannot hold it, and spreadsheet
-            parsers drop such a sheet silently rather than failing loudly. That is a limit of the platform, not a
-            setting MATLens can raise.
+            Spreadsheet parsers decompress a worksheet into a single string, and JavaScript caps a string at
+            <strong> 512 MB</strong> — so a large basefile cannot be opened that way at all, and is dropped silently
+            rather than reported. MATLens reads workbooks over 20 MB with its own streaming reader instead: it inflates
+            the archive a chunk at a time and scans the sheet row by row, so the sheet is never held whole and that
+            ceiling never applies.
           </p>
-          <p className="t-sub" style={{ marginTop: 10 }}>
-            The repository includes a converter that streams the workbook row by row without ever holding it in memory,
-            keeps only the columns MATLens analyses, and sums SKU rows to brand level. A 180-column basefile typically
-            comes out a fraction of its original size and opens here instantly. Run it in your terminal:
+          <ul className="list-check" style={{ marginTop: 12 }}>
+            <li>
+              <span style={{ color: 'var(--accent)', marginTop: 2 }}>
+                <Icon name="check" size={13} strokeWidth={2.2} />
+              </span>
+              Very wide exports are projected to what can be analysed — every dimension column plus the MAT measures.
+              Monthly, quarterly and year-to-date series are read past rather than held, and the count is reported below.
+            </li>
+            <li>
+              <span style={{ color: 'var(--accent)', marginTop: 2 }}>
+                <Icon name="check" size={13} strokeWidth={2.2} />
+              </span>
+              Where a file carries the same measure for several years, the two most recent MAT periods become the
+              current and comparison periods automatically. Earlier periods are listed in the mapping table, and you can
+              map any pair by hand to compare different years.
+            </li>
+          </ul>
+          <p className="t-micro" style={{ marginTop: 12 }}>
+            A command-line converter is also included for pre-processing a file once — useful for repeatedly analysing
+            one therapy area, and the only option on a browser without streaming decompression:
           </p>
-          <Formula>{`npm run convert -- --in "C:\path\to\BASEFILE.xlsx" --list
-npm run convert -- --in "C:\path\to\BASEFILE.xlsx"
-npm run convert -- --in "...xlsx" --therapy DERMATOLOGY`}</Formula>
-          <p className="t-micro" style={{ marginTop: 10 }}>
-            <code>--list</code> prints every column so you can see what the file holds. The plain form writes a
-            MATLens-ready CSV next to the source. <code>--therapy</code> narrows it to one therapy area, which is
-            usually what you actually want to analyse. Everything runs on your machine — nothing is uploaded anywhere.
-          </p>
+          <Formula>{`npm run convert -- --in "<path to your file>" --list
+npm run convert -- --in "<path to your file>" --therapy DERMATOLOGY`}</Formula>
         </Card>
       </div>
 
@@ -226,7 +236,15 @@ npm run convert -- --in "...xlsx" --therapy DERMATOLOGY`}</Formula>
             )}
 
             <div className="grid grid--kpi">
-              <KpiTile label="Rows in file" value={dataset.health.totalRows.toLocaleString('en-IN')} />
+              <KpiTile
+                label="Rows in file"
+                value={dataset.health.totalRows.toLocaleString('en-IN')}
+                foot={
+                  dataset.raw.sheetRowCount && dataset.raw.sheetRowCount - 1 > dataset.health.totalRows
+                    ? `${(dataset.raw.sheetRowCount - 1).toLocaleString('en-IN')} rows in the sheet, blanks excluded`
+                    : undefined
+                }
+              />
               <KpiTile
                 label="Usable records"
                 value={dataset.health.usableRows.toLocaleString('en-IN')}
@@ -382,6 +400,21 @@ npm run convert -- --in "...xlsx" --therapy DERMATOLOGY`}</Formula>
                 {unmapped.length ? ` · ${unmapped.length} carried through unused` : ''}
               </span>
             </div>
+
+            {dataset.raw.skippedColumns && dataset.raw.skippedColumns.length > 0 && (
+              <div style={{ marginTop: 12 }}>
+                <Callout title={`${dataset.raw.skippedColumns.length.toLocaleString('en-IN')} columns were read past, not retained`}>
+                  This export carries{' '}
+                  {(dataset.raw.skippedColumns.length + dataset.raw.columns.length).toLocaleString('en-IN')} columns.
+                  MATLens kept every dimension column and every MAT measure, and skipped the monthly, quarterly and
+                  year-to-date series, which it does not analyse and which would cost memory for nothing.
+                  <details style={{ marginTop: 8 }}>
+                    <summary className="t-micro" style={{ cursor: 'pointer' }}>Show the skipped columns</summary>
+                    <p className="t-micro" style={{ marginTop: 6 }}>{dataset.raw.skippedColumns.join(' · ')}</p>
+                  </details>
+                </Callout>
+              </div>
+            )}
 
             {!usedFields.has('brand' as FieldKey) && (
               <div style={{ marginTop: 12 }}>

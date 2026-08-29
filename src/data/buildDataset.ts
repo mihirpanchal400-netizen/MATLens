@@ -371,6 +371,14 @@ export function buildDataset(params: {
   };
 
   const notes = [...(params.notes ?? [])];
+  if (raw.skippedColumns?.length) {
+    notes.push(
+      `This export carried ${(raw.skippedColumns.length + raw.columns.length).toLocaleString('en-IN')} columns. ` +
+        `${raw.columns.length.toLocaleString('en-IN')} were retained — every dimension, plus the MAT measures — and ` +
+        `${raw.skippedColumns.length.toLocaleString('en-IN')} monthly, quarterly and year-to-date columns were read past ` +
+        `rather than held in memory, because MATLens analyses moving annual totals.`,
+    );
+  }
   if (derivedPrevCount > 0) {
     notes.push(
       `Previous MAT value was reconstructed from the reported growth column for ${derivedPrevCount.toLocaleString('en-IN')} row(s).`,

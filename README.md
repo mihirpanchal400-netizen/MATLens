@@ -180,10 +180,10 @@ Note what is absent: any claim about *why*. A MAT file cannot support one.
 | Language | TypeScript (strict) | The domain has many nullable metrics; the compiler enforces handling them |
 | Styling | Hand-written CSS with design tokens | Full control over a restrained, corporate visual system; no framework version risk |
 | Charts | Recharts | Lightweight, composable, SVG-based |
-| Excel | SheetJS (`xlsx`), lazy-loaded | Only fetched when an actual workbook is opened |
+| Excel | Streaming reader (own), SheetJS for small files | No 512 MB sheet ceiling; SheetJS stays for ordinary workbooks |
 | CSV | Papa Parse | Tolerant of real-world exports |
 | Backend | None | Files are parsed in the browser and never leave the machine |
-| Large files | ExcelJS streaming (dev-only CLI) | Converts basefiles past the browser's ceiling without loading them into memory |
+| Large files | Native `DecompressionStream` + ZIP reader | No third-party dependency; ExcelJS powers the optional CLI converter |
 | AI | None | Every calculation and every rule is deterministic |
 
 Colour is not decoration: the categorical chart palette is a validated, colour-vision-deficiency-safe
@@ -244,7 +244,7 @@ npm install       # install dependencies
 npm run dev       # start the dev server (http://localhost:5173)
 npm run build     # typecheck and build for production
 npm run preview   # serve the production build
-npm run verify    # run the full verification suite (170 checks)
+npm run verify    # run the full verification suite (197 checks)
 npm run gen:demo  # regenerate the synthetic files in public/demo-data
 npm run convert   # convert a large basefile into a MATLens-ready CSV (see below)
 ```
@@ -270,44 +270,77 @@ Requires Node 18 or newer. Nothing else — no database, no API keys, no environ
 13. Scale: a 60,000-row CSV parsed and analysed with integrity intact, a 12,000-brand dropdown capped
     rather than rendered whole, a crore-denominated file flagged and rescaled, and SKU-level rows
     distinguished from genuine duplicates
+14. The streaming XLSX reader against SheetJS on the same workbook - every row, every cell, with
+    entities, quotes, non-ASCII, genuine zeros, negatives and empty cells compared
+15. Period-aware mapping on a basefile shape: latest MAT period as current, the one before as
+    comparison, earlier periods set aside, YTD series not displacing MAT
 
 ## Large basefiles
 
-MATLens reads CSV and Excel files up to 500 MB in the browser, streaming large CSVs in chunks so the
-text never becomes one string. Beyond that there is a hard limit that no setting can raise:
+**A full market basefile opens directly in the app.** No pre-processing, no conversion step.
 
-> **JavaScript's maximum string length is 512 MB.** A worksheet whose XML exceeds it cannot be opened
-> by any browser or any Node build - the engine cannot hold it. Spreadsheet parsers drop such a sheet
-> *silently*: it stays in the workbook's sheet list but never materialises. MATLens detects exactly
-> that condition and says so, rather than failing mysteriously.
+That is not free, because there is a hard limit in the way:
 
-A real example: a 211 MB PharmaTrac IPM basefile - 98,249 SKU rows x 180 columns - decompresses to a
+> **JavaScript caps a string at 512 MB.** Every ordinary spreadsheet parser decompresses a worksheet
+> into one string, so past that ceiling it cannot read the sheet at all — and SheetJS drops such a
+> sheet *silently*: it stays in the workbook's sheet list but never materialises, so the failure
+> arrives as a mystery rather than an error.
+
+A real example: a 211 MB PharmaTrac IPM basefile — 98,249 SKU rows x 180 columns — decompresses to a
 672 MB worksheet, 129 MB past the wall.
 
-The repository ships a converter for this case. It streams the workbook row by row, never holding it
-in memory, keeps only the columns MATLens analyses, and sums SKU rows to brand level:
+MATLens therefore ships its own streaming reader (`src/data/xlsxStream.ts`), used automatically for
+workbooks over 20 MB. It:
 
-```bash
-npm run convert -- --in "C:\path\to\BASEFILE.xlsx" --list        # show every column
-npm run convert -- --in "C:\path\to\BASEFILE.xlsx"               # write a MATLens-ready CSV
-npm run convert -- --in "...xlsx" --therapy DERMATOLOGY            # narrow to one therapy area
-npm run convert -- --in "...xlsx" --sku-level                      # keep SKU rows instead of summing
-```
+1. reads the ZIP central directory straight off the `File`, so nothing unneeded is loaded;
+2. inflates one archive entry at a time through the platform's native `DecompressionStream`;
+3. scans the sheet XML with a purpose-built scanner that holds only the current row, so the sheet is
+   never a string and the ceiling never applies;
+4. projects very wide exports down to what can be analysed, reporting exactly what it kept and skipped.
 
-On that 211 MB basefile it produces a **9 MB CSV with 65,825 brand-level rows in about 50 seconds**,
-which MATLens then parses in under half a second. Everything runs locally; nothing is uploaded.
+On that 211 MB basefile, in the browser:
 
-The converter auto-detects the two most recent MAT value and unit columns by reading the period out of
-headers like `Mar-26 MAT Sales Value`, and it never writes a zero where a value was missing - a brand
-with no history is written blank, because "unknown" and "zero" are different facts.
+| | |
+|---|---|
+| Parse | **23 seconds**, 98,249 rows |
+| Columns | 27 retained, 153 monthly/quarterly/YTD columns read past |
+| Understand + validate | 1.1 s |
+| Analyse | 0.5 s — 60,512 brands, 828 companies, 17 therapies, 99 segments |
+| Peak memory | ~550 MB |
+
+It is async throughout, so the interface keeps painting progress while it reads, and it runs unchanged
+on Node — which is how it is tested: the same workbook is written with SheetJS, read back with the
+streaming reader, and every cell compared.
+
+### Multi-period files
+
+A basefile carries the same measure for several years — five MAT value columns and five MAT unit
+columns is normal. The mapper reads the period out of each header (`Mar-26 MAT Sales Value`,
+`MAT August 2026`, `FY24`) and assigns **the most recent period as the current one and the one before
+it as the comparison**, setting earlier periods aside with the reason shown in the mapping table. A
+year-to-date or monthly series never displaces the MAT series. To compare a different pair of years,
+map them by hand — the whole analysis rebuilds instantly.
 
 ### Value units
 
-Market audits are frequently denominated in thousands, lakhs or crores rather than rupees - that IPM
+Market audits are frequently denominated in thousands, lakhs or crores rather than rupees — that IPM
 basefile is in crores, where reading the numbers as rupees understates the market by seven orders of
 magnitude. MATLens flags a total too small to plausibly be a pharmaceutical market and shows what the
 market would total under each unit, so the right one is obvious. It never guesses on your behalf.
-Growth, share and rank are ratios and are unaffected by the setting; only absolute values change.
+Growth, share and rank are ratios and are unaffected; unit sales are never rescaled.
+
+### The command-line converter
+
+`npm run convert` remains for pre-processing a file once — useful when you repeatedly analyse one
+therapy area, and the only route on a browser without `DecompressionStream`:
+
+```bash
+npm run convert -- --in "C:\path\to\BASEFILE.xlsx" --list
+npm run convert -- --in "C:\path\to\BASEFILE.xlsx" --therapy DERMATOLOGY
+```
+
+It streams the workbook with ExcelJS and writes a slim CSV: on the same basefile, 9 MB and 65,825
+brand-level rows in about 50 seconds. Everything runs locally; nothing is uploaded.
 
 ## Screenshots
 
@@ -335,7 +368,8 @@ own file.
 - Share and rank are computed within the loaded rows. A partial extract yields a partial market.
 - Share changes sum to zero only when every brand has a previous period; new entrants make the total
   slightly negative, which is arithmetic rather than error.
-- A worksheet larger than 512 MB of XML cannot be opened in a browser at all. Use the converter.
+- Very wide exports are projected to dimension and MAT columns; monthly, quarterly and YTD series
+  are not retained. The skipped columns are listed on the Upload screen.
 - Value data cannot separate price, pack mix and volume without unit data — and only approximates
   the split with it.
 - Stock movements, returns, tender timing and channel shifts are invisible unless the file contains them.

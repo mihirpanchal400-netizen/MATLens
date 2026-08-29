@@ -91,9 +91,10 @@ export const FIELD_PATTERNS: FieldPattern[] = [
   },
   {
     field: 'period',
-    exact: ['period', 'mat', 'matperiod', 'month', 'year', 'timeperiod', 'periodname', 'matlabel', 'date'],
+    exact: ['period', 'mat', 'matperiod', 'timeperiod', 'periodname', 'matlabel', 'periodlabel'],
     contains: ['period'],
-    reject: ['value', 'unit', 'growth', 'sales', 'share', 'prev'],
+    // A per-row date such as "SKU Launch Date" is not the MAT period of the extract.
+    reject: ['value', 'unit', 'growth', 'sales', 'share', 'prev', 'launch', 'expiry', 'start', 'end', 'birth'],
     expect: 'text',
   },
   {
@@ -120,8 +121,8 @@ export const FIELD_PATTERNS: FieldPattern[] = [
   },
   {
     field: 'matUnits',
-    exact: ['matunits', 'matunit', 'units', 'unitsales', 'unitsales', 'matunitsales', 'volume', 'matvolume', 'qty', 'quantity', 'packs', 'matpacks'],
-    contains: ['matunit', 'unitsales', 'volume', 'quantity'],
+    exact: ['matunits', 'matunit', 'matsalesunit', 'matsalesunits', 'units', 'unit', 'unitsales', 'salesunit', 'salesunits', 'matunitsales', 'volume', 'matvolume', 'qty', 'quantity', 'packs', 'matpacks'],
+    contains: ['matunit', 'matsalesunit', 'unitsales', 'salesunit', 'volume', 'quantity'],
     reject: [...PREV_TOKENS, 'growth', 'share', 'rank', 'value'],
     expect: 'number',
   },
