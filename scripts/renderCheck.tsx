@@ -15,6 +15,7 @@ import { DataExplorer } from '../src/pages/DataExplorer';
 import { InsightCenter } from '../src/pages/InsightCenter';
 import { Landing } from '../src/pages/Landing';
 import { MarketLandscape } from '../src/pages/MarketLandscape';
+import { MoleculeExplorer } from '../src/pages/MoleculeExplorer';
 import { Methodology } from '../src/pages/Methodology';
 import { OpportunitySignals } from '../src/pages/OpportunitySignals';
 import { Overview } from '../src/pages/Overview';
@@ -25,6 +26,7 @@ export const PAGES: Array<{ id: PageId; label: string; Component: () => JSX.Elem
   { id: 'overview', label: 'Overview', Component: Overview },
   { id: 'market', label: 'Market Landscape', Component: MarketLandscape },
   { id: 'brand', label: 'Brand Performance', Component: BrandPerformance },
+  { id: 'molecules', label: 'Molecule Explorer', Component: MoleculeExplorer },
   { id: 'competitors', label: 'Competitor Intelligence', Component: CompetitorIntelligence },
   { id: 'opportunities', label: 'Opportunity Signals', Component: OpportunitySignals },
   { id: 'insights', label: 'Insight Center', Component: InsightCenter },

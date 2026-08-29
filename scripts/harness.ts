@@ -524,6 +524,79 @@ async function main() {
   check('"Brand" wins over "SKU" for the brand field', mappedTo('brand') === 'Brand', String(mappedTo('brand')));
 
   /* ---------------------------------------------------------------- */
+  heading('16. Molecule detection and the Molecule Explorer');
+
+  // A basefile that hides the molecule behind an opaque header. PharmaTrac names
+  // the hierarchy Super Group > Sub Super Group > Sub Group, and the lowest level
+  // is the molecule — which no header-matching rule can know.
+  const hierarchyHeaders = ['Super Group', 'Sub Super Group', 'Sub Group', 'Brand', 'Company', 'Class', 'Mar-26 MAT Sales Value', 'Mar-25 MAT Sales Value'];
+  const hierarchyValues: Record<string, string[]> = {
+    'Super Group': ['RESPIRATORY', 'VITAMINS', 'SEX STIMULANTS'],
+    'Sub Super Group': ['SYSTEMIC ANTIHISTAMINES', 'ANTI-ASTHMA AND COPD PRODUCTS', 'ERECTILE DYSFUNCTION PRODUCTS'],
+    'Sub Group': ['SILDENAFIL', 'LEVOCETIRIZINE', 'MONTELUKAST + LEVOCETIRIZINE', 'ATORVASTATIN', 'AMOXICILLIN + CLAVULANIC ACID'],
+    Brand: ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'],
+    Company: ['FDC LTD.', 'AGLOWMED PHARMACEUTICALS LTD.', 'BESTOCHEM'],
+    Class: ['UROLOGICALS', 'SYSTEMIC ANTIHISTAMINES', 'ANTI-ASTHMA AND COPD PRODUCTS'],
+  };
+  const hierarchyRows = Array.from({ length: 40 }, (_, i) => {
+    const row: Record<string, unknown> = {};
+    for (const header of hierarchyHeaders) {
+      row[header] = hierarchyValues[header]
+        ? hierarchyValues[header][i % hierarchyValues[header].length]
+        : 1000 + i * (header.startsWith('Mar-26') ? 2 : 1);
+    }
+    return row;
+  });
+  const hierarchyMappings = mapColumns({ fileName: 'hierarchy.csv', columns: hierarchyHeaders, rows: hierarchyRows });
+  const mappedFrom = (column: string) => hierarchyMappings.find((m) => m.sourceColumn === column)?.field ?? null;
+
+  check('a molecule column with an opaque header is found by its values', mappedFrom('Sub Group') === 'molecule', String(mappedFrom('Sub Group')));
+  check('and the mapping explains why', /values look like molecule/i.test(hierarchyMappings.find((m) => m.sourceColumn === 'Sub Group')?.reason ?? ''));
+  check('the therapeutic levels above it are not mistaken for molecules', mappedFrom('Super Group') !== 'molecule' && mappedFrom('Sub Super Group') !== 'molecule');
+  check('brand and company are unaffected', mappedFrom('Brand') === 'brand' && mappedFrom('Company') === 'company');
+
+  // Combination molecules and INN stems, and the things that must NOT match.
+  const notMolecules = ['UROLOGICALS', 'SYSTEMIC ANTIHISTAMINES', 'North', 'South', 'GENERICS', 'SELECT'];
+  const notMoleculeMapping = mapColumns({
+    fileName: 'plain.csv',
+    columns: ['Zone', 'Brand', 'MAT_VAL'],
+    rows: notMolecules.map((v, i) => ({ Zone: v, Brand: `B${i}`, MAT_VAL: 100 + i })),
+  });
+  check(
+    'ordinary category text is not mistaken for molecules',
+    notMoleculeMapping.find((m) => m.sourceColumn === 'Zone')?.field !== 'molecule',
+    String(notMoleculeMapping.find((m) => m.sourceColumn === 'Zone')?.field),
+  );
+
+  // The screen itself, against a dataset that has molecules and one that does not.
+  const moleculeDataset = buildDataset({
+    raw: { fileName: 'hierarchy.csv', columns: hierarchyHeaders, rows: hierarchyRows },
+    mappings: hierarchyMappings,
+  });
+  check('a hierarchy file builds a usable dataset', moleculeDataset.rows.length === 40 && moleculeDataset.capabilities.hasMolecule);
+
+  const moleculeHtml = renderPage('molecules', moleculeDataset);
+  check('Molecule Explorer renders with molecules present', moleculeHtml.includes('Molecule scorecard'), `${moleculeHtml.length} chars`);
+  check('it names the competitive question', moleculeHtml.includes('Is the molecule the problem, or the brand?'));
+  check('it lists brands competing on the molecule', /Brands on /.test(moleculeHtml));
+
+  const withoutMolecule = await (async () => {
+    const csv = ['BRAND,COMPANY,SEGMENT,MAT_VAL,PREV_MAT_VAL', 'Alpha,Acme,Derm,500000,400000', 'Beta,Zeta,Derm,300000,320000'].join('\n');
+    const raw = await parseFile(new File([csv], 'no-molecule.csv'));
+    return buildDataset({ raw, mappings: mapColumns(raw) });
+  })();
+  check('a file with no molecule column reports the capability as absent', !withoutMolecule.capabilities.hasMolecule);
+  const noMoleculeHtml = renderPage('molecules', withoutMolecule);
+  check(
+    'and the screen explains itself instead of rendering empty',
+    noMoleculeHtml.includes('Molecule analysis is unavailable') && noMoleculeHtml.includes('Sub Group'),
+  );
+
+  const demoMoleculeHtml = renderPage('molecules', demo);
+  check('Molecule Explorer renders on the demo dataset', demoMoleculeHtml.includes('Molecule scorecard'));
+  check('and compares molecules within the class', demoMoleculeHtml.includes('Molecule versus molecule in'));
+
+  /* ---------------------------------------------------------------- */
   const { runClientChecks } = await import('./clientCheck');
   await runClientChecks(check, heading);
 

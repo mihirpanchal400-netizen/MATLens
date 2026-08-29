@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ---
 
+## [1.3.0] - 2026-08-29
+
+The molecule lens. In branded generics the molecule is the arena a brand competes in, and MATLens was
+neither surfacing it properly nor, on real basefiles, even finding it.
+
+### Added
+
+- **Molecule Explorer screen.** Pick a molecule and see: its MAT value, growth and share of the total
+  market; its share of its parent class and how that share moved; the number of brands and companies
+  competing on it; CR4 and HHI within the molecule. Then the two questions that matter — a growth
+  benchmark against class and market that separates a competitive problem from a category one, and a
+  brand league table with rank, share and share change recalculated *within* the molecule. Below
+  that, molecule-versus-molecule: share-of-class movement across sibling molecules, the class value
+  split, and a sortable table of every molecule in the class. The rule engine runs a second time with
+  the molecule as its universe, so the signals are relative to the molecule rather than the market.
+- **Molecule detection from cell values.** Market audits give the molecule column an opaque header —
+  PharmaTrac names it `Sub Group`, under Super Group and Sub Super Group. MATLens now recognises
+  molecule *shape*: international non-proprietary name stems, and combinations written as
+  `MONTELUKAST + LEVOCETIRIZINE`. When most of a text column's values look like molecule names it is
+  proposed as the molecule, with the evidence quoted in the mapping table and correctable in a click.
+  On a real IPM basefile this surfaces 3,944 molecules that were previously ignored.
+- 17 further checks (214 total): molecule detection on a hierarchy header shape, rejection of
+  therapeutic levels and ordinary category text, and the Molecule Explorer rendered both with and
+  without a molecule column.
+
+### Changed
+
+- The molecule picker searches rather than listing thousands of options, and caps the rendered list.
+- Concentration now shows the HHI value beside its label everywhere, so a molecule with a high CR4
+  and a long tail does not appear to contradict itself.
+
+---
+
 ## [1.2.0] - 2026-08-29
 
 Large workbooks now open in the app itself. The converter added in 1.1.0 was a workaround; this is

@@ -100,7 +100,61 @@ function scoreColumn(header: string, values: unknown[]): Candidate[] {
     if (score > 0) candidates.push({ field: pattern.field, score, reason });
   }
 
+  // Value-shape evidence for the molecule column, which is frequently given a
+  // header that says nothing about its contents.
+  if (ratio < 0.5) {
+    const likeness = moleculeLikeness(values);
+    if (likeness >= 0.45) {
+      const examples = values
+        .map((v) => String(v ?? '').trim())
+        .filter(Boolean)
+        .slice(0, 3)
+        .join(', ');
+      const evidence = `Values look like molecule or composition names (${examples})`;
+      const existing = candidates.find((c) => c.field === 'molecule');
+      if (existing) {
+        existing.score += Math.round(likeness * 15);
+        existing.reason += `; ${evidence.toLowerCase()}`;
+      } else {
+        candidates.push({
+          field: 'molecule',
+          score: 68 + Math.round(likeness * 22),
+          reason: `Header does not name a molecule, but ${likeness >= 0.8 ? 'almost all' : 'most'} of its values do. ${evidence}`,
+        });
+      }
+    }
+  }
+
   return candidates.sort((a, b) => b.score - a.score);
+}
+
+
+/**
+ * International non-proprietary names carry recognisable stems, and market
+ * audits routinely give the molecule column an opaque header: PharmaTrac calls
+ * it "Sub Group", sitting under Super Group and Sub Super Group. Header text
+ * alone cannot identify it — the values can.
+ *
+ * Deliberately conservative: it recognises molecule *shape*, and the mapping is
+ * always shown to the user with its reason so it can be corrected.
+ */
+const INN_STEM = /(olol|pril|sartan|statin|cycline|cillin|mycin|micin|azole|azine|idine|tidine|dipine|profen|oxacin|floxacin|parin|navir|vir|tinib|nib|mab|cept|setron|triptan|prazole|caine|dronate|glitazone|gliptin|flozin|semide|thiazide|sone|olone|ide|ine|ate|one)$/i;
+
+function moleculeLikeness(values: unknown[]): number {
+  const samples = values
+    .map((v) => String(v ?? '').trim())
+    .filter((v) => v.length > 2 && v.length < 90);
+  if (samples.length < 3) return 0;
+
+  let hits = 0;
+  for (const sample of samples) {
+    // A combination is written as "MONTELUKAST + LEVOCETIRIZINE".
+    const parts = sample.split(/\s*\+\s*/);
+    const combination = parts.length > 1;
+    const stemmed = parts.some((part) => INN_STEM.test(part.replace(/[^A-Za-z]/g, '')));
+    if (combination || stemmed) hits += 1;
+  }
+  return hits / samples.length;
 }
 
 function confidenceFor(score: number): Confidence {

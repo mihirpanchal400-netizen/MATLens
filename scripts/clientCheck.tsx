@@ -107,6 +107,7 @@ export async function runClientChecks(check: Check, heading: (text: string) => v
   const pages = [
     ['Market Landscape', 'Market structure'],
     ['Brand Performance', 'Brand scorecard'],
+    ['Molecule Explorer', 'Molecule scorecard'],
     ['Competitor Intelligence', 'Competitor landscape'],
     ['Opportunity Signals', 'What counts as a signal'],
     ['Insight Center', 'What should a Brand Manager pay attention to?'],

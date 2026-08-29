@@ -59,13 +59,14 @@ The product loop:
 RAW DATA → UNDERSTAND → ANALYSE → IDENTIFY SIGNAL → EXPLAIN → INVESTIGATE → BRAND DECISION
 ```
 
-Nine screens, each answering one question:
+Ten screens, each answering one question:
 
 | Screen | The question it answers |
 |---|---|
 | **Overview** | What is happening, what changed, what needs attention? |
 | **Market Landscape** | How big is the category, who is in it, and where is it growing? |
 | **Brand Performance** | Is my brand winning or losing, and against what benchmark? |
+| **Molecule Explorer** | Within my molecule, who is winning — and is my molecule winning its class? |
 | **Competitor Intelligence** | Who is gaining, who is losing, and who is worth watching? |
 | **Opportunity Signals** | Where is growth available that my brand is not capturing? |
 | **Insight Center** | What should I pay attention to, ranked, with the evidence? |
@@ -105,6 +106,32 @@ result, not an omission.
 
 **Provenance labelling.** Every statement in the UI is tagged **Observed data**, **Derived metric**,
 **Interpretation** or **Hypothesis**. The distinction is visible, not implied.
+
+## The molecule lens
+
+In a branded-generics market the molecule, not the therapeutic class, is the arena a brand actually
+competes in. A Levocetirizine brand competes with the other Levocetirizine brands long before it
+competes with "SYSTEMIC ANTIHISTAMINES". The Molecule Explorer makes that the unit of analysis:
+
+- **Is it the molecule or the brand?** A brand growing 8% inside a molecule growing 20% has a
+  competitive problem; the same brand inside a molecule growing 2% has a category problem. They need
+  opposite responses, and class-level data cannot tell them apart.
+- **Rank within the real competitive set.** Share and rank are recomputed inside the molecule, so
+  "#3 of 11 on this molecule" replaces "#14 in a 94-member class".
+- **Molecule versus molecule.** Share-of-class movement across sibling molecules, which is where a
+  class quietly shifts from one chemistry to another.
+- **Concentration.** CR4 and HHI within the molecule — a two-player molecule and a 400-brand
+  commodity are different businesses.
+
+**Finding the molecule column is itself a feature.** Market audits routinely give it an opaque
+header: a PharmaTrac basefile names the hierarchy Super Group → Sub Super Group → **Sub Group**, and
+the lowest level is the molecule. No header-matching rule can know that, so MATLens also reads the
+*values*: international non-proprietary names carry recognisable stems, and combinations are written
+as `MONTELUKAST + LEVOCETIRIZINE`. When most of a text column's values look like molecule names, it is
+proposed as the molecule with the evidence quoted in the mapping table — and, like every mapping, it
+can be corrected in one click.
+
+On a real 211 MB IPM basefile this finds **3,944 molecules** the app would otherwise have ignored.
 
 ## Analytical framework
 
@@ -244,7 +271,7 @@ npm install       # install dependencies
 npm run dev       # start the dev server (http://localhost:5173)
 npm run build     # typecheck and build for production
 npm run preview   # serve the production build
-npm run verify    # run the full verification suite (197 checks)
+npm run verify    # run the full verification suite (214 checks)
 npm run gen:demo  # regenerate the synthetic files in public/demo-data
 npm run convert   # convert a large basefile into a MATLens-ready CSV (see below)
 ```
@@ -274,6 +301,8 @@ Requires Node 18 or newer. Nothing else — no database, no API keys, no environ
     entities, quotes, non-ASCII, genuine zeros, negatives and empty cells compared
 15. Period-aware mapping on a basefile shape: latest MAT period as current, the one before as
     comparison, earlier periods set aside, YTD series not displacing MAT
+16. Molecule detection from values on an opaque hierarchy header, with therapeutic levels and plain
+    category text correctly rejected, and the Molecule Explorer rendered with and without molecules
 
 ## Large basefiles
 

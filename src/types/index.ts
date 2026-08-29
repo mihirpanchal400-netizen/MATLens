@@ -251,6 +251,7 @@ export type PageId =
   | 'overview'
   | 'market'
   | 'brand'
+  | 'molecules'
   | 'competitors'
   | 'opportunities'
   | 'insights'

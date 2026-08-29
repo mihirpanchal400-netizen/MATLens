@@ -2,6 +2,7 @@ export type IconName =
   | 'overview'
   | 'market'
   | 'brand'
+  | 'molecule'
   | 'competitors'
   | 'opportunities'
   | 'insights'
@@ -26,6 +27,7 @@ const PATHS: Record<IconName, JSX.Element> = {
   overview: <path d="M3 3h7v7H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 14h7v7H3z" />,
   market: <path d="M3 20h18M6 20v-6M11 20V8M16 20v-9M21 20V4" />,
   brand: <><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4" /><circle cx="12" cy="12" r="0.6" fill="currentColor" /></>,
+  molecule: <><circle cx="6" cy="7" r="2.6" /><circle cx="17.5" cy="6.5" r="2.2" /><circle cx="12" cy="17" r="2.8" /><path d="M8.2 8.6 10.6 14.6M8.4 6.9 15.3 6.6M15.9 8.4 13.4 14.8" /></>,
   competitors: <><circle cx="8" cy="9" r="3" /><circle cx="17" cy="10" r="2.5" /><path d="M2.5 20c0-3 2.5-5 5.5-5s5.5 2 5.5 5M15 20c0-2.2 1.4-3.8 3.4-3.8 1.6 0 3.1 1 3.1 3.8" /></>,
   opportunities: <><circle cx="12" cy="12" r="9" /><path d="M15.5 8.5l-2 5-5 2 2-5z" /></>,
   insights: <><path d="M9 18h6M10 21h4" /><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2h5c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z" /></>,
