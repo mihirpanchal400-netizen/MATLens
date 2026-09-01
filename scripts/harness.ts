@@ -307,7 +307,7 @@ async function main() {
       'renders the empty-state landing screen',
       landing.includes('From market data to brand decisions') && landing.includes('Explore demo dataset'),
     );
-    check('landing offers an upload route', landing.includes('Upload your own Excel or CSV'));
+    check('landing offers an upload route', landing.includes('Upload your own MAT data'));
   } catch (error) {
     check('renders the empty-state landing screen', false, error instanceof Error ? error.message : String(error));
   }
@@ -315,7 +315,7 @@ async function main() {
   const overviewHtml = renderPage('overview', demo);
   check('Overview marks the data as synthetic', overviewHtml.includes('Synthetic demo data'));
   check('Overview renders the market size KPI', /3,?361|3361/.test(overviewHtml));
-  check('Overview surfaces attention items', overviewHtml.includes('Attention required'));
+  check('Overview surfaces attention items', overviewHtml.includes('Key findings'));
   check('Overview separates observed data from interpretation', overviewHtml.includes('Signal') && overviewHtml.includes('Interpretation'));
 
   const insightHtml = renderPage('insights', demo);

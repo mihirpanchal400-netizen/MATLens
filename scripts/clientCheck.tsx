@@ -78,6 +78,8 @@ export async function runClientChecks(check: Check, heading: (text: string) => v
   const text = () => container.textContent ?? '';
   const buttons = () => [...container.querySelectorAll('button')] as HTMLButtonElement[];
   const byText = (needle: string) => buttons().find((b) => (b.textContent ?? '').includes(needle));
+  /** Exact label match — "Save" must not resolve to the "Saved (0)" filter chip. */
+  const byExactText = (label: string) => buttons().find((b) => (b.textContent ?? '').trim() === label);
 
   const click = async (element: Element | undefined, label: string) => {
     if (!element) {
@@ -102,7 +104,7 @@ export async function runClientChecks(check: Check, heading: (text: string) => v
   check('demo dataset loads', text().includes('Soranil'), 'focus brand rendered');
   check('KPI row renders the market size', /₹\s?3,?361|3361/.test(text()));
   check('the synthetic badge is visible', text().includes('Synthetic demo data'));
-  check('attention cards are generated', text().includes('Attention required'));
+  check('attention cards are generated', text().includes('Key findings'));
 
   const pages = [
     ['Market Landscape', 'Market structure'],
@@ -112,7 +114,7 @@ export async function runClientChecks(check: Check, heading: (text: string) => v
     ['Opportunity Signals', 'What counts as a signal'],
     ['Insight Center', 'What should a Brand Manager pay attention to?'],
     ['Data Explorer', 'How was this calculated?'],
-    ['Upload Data', 'Column mapping'],
+    ['MAT Data Upload', 'Upload new MAT data'],
     ['Methodology', 'Rule catalogue'],
     ['Overview', 'Executive summary'],
   ] as const;
@@ -157,6 +159,15 @@ export async function runClientChecks(check: Check, heading: (text: string) => v
   } else {
     check('a filter narrows the scope', false, 'segment filter not found');
   }
+
+  // Insight workspace: save a finding, then confirm it collects under Saved.
+  await click(byText('Insight Center'), 'nav: Insight Center');
+  check('findings offer a save action', Boolean(byExactText('Save')));
+  await click(byExactText('Save'), 'Save insight');
+  check('a saved finding reports itself as saved', Boolean(byText('Saved (1)')), 'saved counter');
+  await click(byText('Saved (1)'), 'Saved filter');
+  check('the saved filter shows the collected findings', text().includes('Saved findings'));
+  await click(byText('All ('), 'All filter');
 
   // Calculation modal.
   await click(byText('Insight Center'), 'nav: Insight Center');

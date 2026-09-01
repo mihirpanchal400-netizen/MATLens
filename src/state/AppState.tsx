@@ -39,6 +39,8 @@ interface AppStateValue {
   insights: Insight[];
   opportunities: Insight[];
   filtersActive: boolean;
+  /** Keys of insights the user has saved to their workspace. */
+  savedInsights: Set<string>;
 
   goTo: (page: PageId, brand?: string) => void;
   setFilter: (key: keyof Filters, value: string | null) => void;
@@ -47,6 +49,7 @@ interface AppStateValue {
   loadDemo: () => void;
   loadFile: (file: File) => Promise<void>;
   remapColumn: (sourceColumn: string, field: FieldKey | null) => void;
+  toggleSavedInsight: (insight: Insight) => void;
   setValueScale: (scale: number) => void;
   resetMapping: () => void;
   clearDataset: () => void;
@@ -54,6 +57,27 @@ interface AppStateValue {
 }
 
 const AppStateContext = createContext<AppStateValue | null>(null);
+
+const SAVED_KEY = 'matlens.savedInsights';
+
+/**
+ * A stable identity for a finding. Insight ids carry a per-run sequence number,
+ * so they cannot survive a re-render; rule + subject + type does.
+ */
+export function insightKey(insight: Insight): string {
+  return `${insight.rule}|${insight.subject}|${insight.type}`;
+}
+
+function readSavedInsights(): Set<string> {
+  try {
+    const raw = window.localStorage.getItem(SAVED_KEY);
+    return new Set<string>(raw ? (JSON.parse(raw) as string[]) : []);
+  } catch {
+    // Private windows and blocked site data throw on access; saving is a
+    // convenience, so an unavailable store simply means nothing is remembered.
+    return new Set<string>();
+  }
+}
 
 export function AppStateProvider({
   children,
@@ -72,6 +96,7 @@ export function AppStateProvider({
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState<ParseProgress | null>(null);
   const [error, setError] = useState<LoadError | null>(null);
+  const [savedInsights, setSavedInsights] = useState<Set<string>>(readSavedInsights);
 
   const adopt = useCallback((next: Dataset, landOn: PageId) => {
     setDataset(next);
@@ -197,6 +222,21 @@ export function AppStateProvider({
     });
   }, []);
 
+  const toggleSavedInsight = useCallback((insight: Insight) => {
+    setSavedInsights((current) => {
+      const next = new Set(current);
+      const key = insightKey(insight);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      try {
+        window.localStorage.setItem(SAVED_KEY, JSON.stringify([...next]));
+      } catch {
+        // Saving is best-effort; the in-session set still works without a store.
+      }
+      return next;
+    });
+  }, []);
+
   const clearDataset = useCallback(() => {
     setDataset(null);
     setFilters(EMPTY_FILTERS);
@@ -254,6 +294,7 @@ export function AppStateProvider({
     insights,
     opportunities,
     filtersActive,
+    savedInsights,
     goTo,
     setFilter,
     resetFilters,
@@ -261,6 +302,7 @@ export function AppStateProvider({
     loadDemo,
     loadFile,
     remapColumn,
+    toggleSavedInsight,
     setValueScale,
     resetMapping,
     clearDataset,

@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useApp } from '../state/AppState';
+import { insightKey, useApp } from '../state/AppState';
 import { FilterBar, ScopeNote } from '../components/FilterBar';
 import { InsightCard } from '../components/InsightCard';
 import { NoDataState } from '../components/NoDataState';
+import { Icon } from '../components/Icon';
 import { Card, Section } from '../components/ui';
-import type { InsightSeverity } from '../types';
+import type { Insight, InsightSeverity } from '../types';
 
 const SEVERITY_ORDER: InsightSeverity[] = ['critical', 'serious', 'watch', 'positive', 'info'];
 
@@ -16,9 +17,36 @@ const SEVERITY_LABEL: Record<InsightSeverity, string> = {
   info: 'Context',
 };
 
+/** Renders saved findings as a plain-text brief a PM can paste into a review deck. */
+function exportBrief(saved: Insight[], datasetName: string, period: string | null) {
+  const lines = [
+    '# MATLens brief',
+    `Dataset: ${datasetName}${period ? ` · ${period}` : ''}`,
+    `Exported: ${new Date().toLocaleString('en-IN')}`,
+    '',
+    ...saved.flatMap((insight) => [
+      `## ${insight.title}`,
+      `**Signal.** ${insight.signal}`,
+      `**Interpretation.** ${insight.interpretation}`,
+      `**Implication.** ${insight.implication}`,
+      `**Investigate.** ${insight.investigationQuestion}`,
+      `**Evidence.** ${insight.evidence.map((e) => `${e.label}: ${e.value}`).join(' · ')}`,
+      `**Calculation.** ${insight.calculation.replace(/\n/g, ' / ')}`,
+      '',
+    ]),
+  ];
+  const blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'matlens-brief.md';
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 export function InsightCenter() {
-  const { dataset, analysis, insights, goTo, focusBrand } = useApp();
-  const [filter, setFilter] = useState<InsightSeverity | 'all'>('all');
+  const { dataset, analysis, insights, goTo, focusBrand, savedInsights, toggleSavedInsight } = useApp();
+  const [filter, setFilter] = useState<InsightSeverity | 'all' | 'saved'>('all');
 
   if (!dataset || !analysis) return <NoDataState what="the Insight Center" />;
 
@@ -27,7 +55,9 @@ export function InsightCenter() {
     return acc;
   }, {});
 
-  const visible = filter === 'all' ? insights : insights.filter((i) => i.severity === filter);
+  const savedList = insights.filter((i) => savedInsights.has(insightKey(i)));
+  const visible =
+    filter === 'all' ? insights : filter === 'saved' ? savedList : insights.filter((i) => i.severity === filter);
 
   return (
     <>
@@ -58,6 +88,22 @@ export function InsightCenter() {
               {SEVERITY_LABEL[severity]} ({counts[severity]})
             </button>
           ))}
+          <span style={{ flex: 1 }} />
+          <button
+            className={`btn btn--sm ${filter === 'saved' ? 'btn--primary' : ''}`}
+            onClick={() => setFilter('saved')}
+          >
+            Saved ({savedList.length})
+          </button>
+          <button
+            className="btn btn--sm"
+            disabled={savedList.length === 0}
+            onClick={() => exportBrief(savedList, dataset.fileName, dataset.period)}
+            title={savedList.length ? 'Download the saved findings as a brief' : 'Save a finding first'}
+          >
+            <Icon name="download" size={13} />
+            Export brief
+          </button>
         </div>
       </Card>
 
@@ -65,7 +111,7 @@ export function InsightCenter() {
 
       {visible.length ? (
         <Section
-          title={filter === 'all' ? 'All findings' : `${SEVERITY_LABEL[filter]} findings`}
+          title={filter === 'all' ? 'All findings' : filter === 'saved' ? 'Saved findings' : `${SEVERITY_LABEL[filter]} findings`}
           subtitle={focusBrand ? `Focus brand: ${focusBrand.name}` : undefined}
         >
           <div className="grid grid--2">
@@ -74,13 +120,19 @@ export function InsightCenter() {
                 key={insight.id}
                 insight={insight}
                 onInvestigate={insight.link ? () => goTo(insight.link!.page, insight.link!.brand) : undefined}
+                saved={savedInsights.has(insightKey(insight))}
+                onToggleSave={() => toggleSavedInsight(insight)}
               />
             ))}
           </div>
         </Section>
       ) : (
         <Card>
-          <p className="t-sub">No findings at this severity in the current selection.</p>
+          <p className="t-sub">
+            {filter === 'saved'
+              ? 'Nothing saved yet. Use Save on any finding to collect it here, then export the set as a brief.'
+              : 'No findings at this severity in the current selection.'}
+          </p>
         </Card>
       )}
     </>

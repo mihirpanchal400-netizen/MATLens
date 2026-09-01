@@ -94,10 +94,14 @@ export function InsightCard({
   insight,
   onInvestigate,
   compact = false,
+  saved,
+  onToggleSave,
 }: {
   insight: Insight;
   onInvestigate?: () => void;
   compact?: boolean;
+  saved?: boolean;
+  onToggleSave?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const meta = SEVERITY_META[insight.severity];
@@ -148,6 +152,16 @@ export function InsightCard({
           <button className="btn btn--sm" onClick={() => setOpen(true)}>
             How was this calculated?
           </button>
+          {onToggleSave && (
+            <button
+              className={`btn btn--sm ${saved ? 'btn--primary' : ''}`}
+              onClick={onToggleSave}
+              aria-pressed={saved}
+            >
+              <Icon name={saved ? 'check' : 'insights'} size={13} />
+              {saved ? 'Saved' : 'Save'}
+            </button>
+          )}
           {onInvestigate && (
             <button className="btn btn--sm btn--link" onClick={onInvestigate} style={{ marginLeft: 'auto' }}>
               Investigate

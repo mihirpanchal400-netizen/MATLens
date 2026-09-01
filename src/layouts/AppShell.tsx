@@ -14,6 +14,10 @@ interface NavEntry {
 
 const NAV_GROUPS: Array<{ label: string; items: NavEntry[] }> = [
   {
+    label: 'Data',
+    items: [{ id: 'upload', label: 'MAT Data Upload', icon: 'upload' }],
+  },
+  {
     label: 'Analyse',
     items: [
       { id: 'overview', label: 'Overview', icon: 'overview' },
@@ -22,17 +26,18 @@ const NAV_GROUPS: Array<{ label: string; items: NavEntry[] }> = [
       { id: 'molecules', label: 'Molecule Explorer', icon: 'molecule' },
       { id: 'competitors', label: 'Competitor Intelligence', icon: 'competitors' },
       { id: 'opportunities', label: 'Opportunity Signals', icon: 'opportunities' },
-      { id: 'insights', label: 'Insight Center', icon: 'insights' },
     ],
   },
   {
-    label: 'Data',
-    items: [
-      { id: 'explorer', label: 'Data Explorer', icon: 'explorer' },
-      { id: 'upload', label: 'Upload Data', icon: 'upload' },
-      { id: 'methodology', label: 'Methodology', icon: 'methodology' },
-    ],
+    label: 'Workspace',
+    items: [{ id: 'insights', label: 'Insight Center', icon: 'insights' }],
   },
+];
+
+/** Reference material, kept out of the primary navigation deliberately. */
+const SECONDARY: NavEntry[] = [
+  { id: 'explorer', label: 'Data Explorer', icon: 'explorer' },
+  { id: 'methodology', label: 'Methodology', icon: 'methodology' },
 ];
 
 const PAGE_TITLES: Record<PageId, { title: string; subtitle: string }> = {
@@ -44,7 +49,7 @@ const PAGE_TITLES: Record<PageId, { title: string; subtitle: string }> = {
   opportunities: { title: 'Opportunity Signals', subtitle: 'Where the data suggests the brand is not capturing available growth' },
   insights: { title: 'Insight Center', subtitle: 'What a Brand Manager should pay attention to, and why' },
   explorer: { title: 'Data Explorer', subtitle: 'The underlying rows, and how every derived metric was calculated' },
-  upload: { title: 'Upload Data', subtitle: 'Load a MAT extract, review how it was understood, and correct the mapping' },
+  upload: { title: 'MAT Data Upload', subtitle: 'Import your latest MAT data to refresh MATLens intelligence' },
   methodology: { title: 'Methodology', subtitle: 'Every formula, threshold and limitation MATLens applies' },
 };
 
@@ -62,7 +67,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="logo__mark">M</span>
             <div>
               <div className="logo__name">MATLens</div>
-              <div className="logo__tag">From market data to brand decisions</div>
+              <div className="logo__tag">Market &amp; Brand Intelligence</div>
             </div>
           </div>
         </div>
@@ -93,23 +98,40 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
+        <div className="nav__secondary">
+          {SECONDARY.map((item) => (
+            <button
+              key={item.id}
+              className={`nav__link ${page === item.id ? 'nav__link--active' : ''}`}
+              onClick={() => goTo(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
         <div className="sidebar__foot">
           {dataset ? (
-            <div className="t-micro">
-              <div className="row" style={{ gap: 6, marginBottom: 4 }}>
-                <Icon name="file" size={13} />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={dataset.fileName}>
-                  {dataset.fileName}
+            <>
+              <div className="t-h3" style={{ fontSize: 13 }}>
+                {dataset.isSynthetic ? 'Demo Dataset' : dataset.fileName}
+              </div>
+              <div className="t-micro" style={{ marginTop: 1 }}>
+                {dataset.period ?? (analysis ? `${analysis.market.brandCount.toLocaleString('en-IN')} brands` : '')}
+              </div>
+              <div className="row" style={{ gap: 6, marginTop: 8 }}>
+                <span className="dot" style={{ background: 'var(--good)' }} />
+                <span className="t-micro">
+                  Data Ready
+                  {analysis ? ` · ${formatValue(analysis.market.totalValue)}` : ''}
                 </span>
               </div>
-              {analysis && (
-                <div>
-                  {analysis.market.brandCount.toLocaleString('en-IN')} brands · {formatValue(analysis.market.totalValue)}
-                </div>
-              )}
-            </div>
+            </>
           ) : (
-            <p className="t-micro">No dataset loaded.</p>
+            <div className="row" style={{ gap: 6 }}>
+              <span className="dot" style={{ background: 'var(--ink-300)' }} />
+              <span className="t-micro">No data loaded</span>
+            </div>
           )}
         </div>
       </aside>
@@ -122,6 +144,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           <div className="topbar__spacer" />
           <div className="topbar__meta">
+            {dataset?.period && <span className="t-micro nowrap">{dataset.period}</span>}
             {dataset?.isSynthetic && <Badge tone="synthetic">Synthetic demo data</Badge>}
             {dataset && analysis && analysis.brands.length > 0 && (
               <label className="row" style={{ gap: 7 }}>
@@ -152,7 +175,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             )}
             <button className="btn" onClick={() => goTo('upload')}>
               <Icon name="upload" size={14} />
-              {dataset ? 'Change data' : 'Upload data'}
+              {dataset ? 'Change Data' : 'Upload Data'}
             </button>
           </div>
         </header>

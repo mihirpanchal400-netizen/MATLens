@@ -38,7 +38,7 @@ export function Landing() {
             </button>
             <button className="btn" onClick={() => goTo('upload')}>
               <Icon name="upload" size={15} />
-              Upload your own Excel or CSV
+              Upload your own MAT data
             </button>
           </div>
 

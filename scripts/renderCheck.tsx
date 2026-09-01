@@ -31,7 +31,7 @@ export const PAGES: Array<{ id: PageId; label: string; Component: () => JSX.Elem
   { id: 'opportunities', label: 'Opportunity Signals', Component: OpportunitySignals },
   { id: 'insights', label: 'Insight Center', Component: InsightCenter },
   { id: 'explorer', label: 'Data Explorer', Component: DataExplorer },
-  { id: 'upload', label: 'Upload Data', Component: UploadData },
+  { id: 'upload', label: 'MAT Data Upload', Component: UploadData },
   { id: 'methodology', label: 'Methodology', Component: Methodology },
 ];
 
