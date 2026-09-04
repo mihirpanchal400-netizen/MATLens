@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import { AppShell } from './layouts/AppShell';
+import { hasSession, openSession } from './auth/credentials';
+import { SignIn } from './auth/SignIn';
 import { AppStateProvider, useApp } from './state/AppState';
 import { BrandPerformance } from './pages/BrandPerformance';
 import { CompetitorIntelligence } from './pages/CompetitorIntelligence';
@@ -39,6 +42,19 @@ function Router() {
 }
 
 export default function App() {
+  const [signedIn, setSignedIn] = useState(hasSession);
+
+  if (!signedIn) {
+    return (
+      <SignIn
+        onSuccess={() => {
+          openSession();
+          setSignedIn(true);
+        }}
+      />
+    );
+  }
+
   return (
     <AppStateProvider>
       <AppShell>

@@ -597,6 +597,24 @@ async function main() {
   check('and compares molecules within the class', demoMoleculeHtml.includes('Molecule versus molecule in'));
 
   /* ---------------------------------------------------------------- */
+  heading('17. Sign-in gate');
+
+  const { verifyCredentials } = await import('../src/auth/credentials');
+  check('the published credentials open the workspace', await verifyCredentials('mihirpanchal400', 'MATlens70450'));
+  check('a wrong password is refused', !(await verifyCredentials('mihirpanchal400', 'wrong')));
+  check('a wrong username is refused', !(await verifyCredentials('someone', 'MATlens70450')));
+  check('empty credentials are refused', !(await verifyCredentials('', '')));
+  check('the username tolerates case and stray spacing', await verifyCredentials('  MihirPanchal400 ', 'MATlens70450'));
+  check('the password does not', !(await verifyCredentials('mihirpanchal400', 'matlens70450')));
+
+  const { renderSignIn } = await import('./renderCheck');
+  const signInHtml = renderSignIn();
+  check('the sign-in screen renders', signInHtml.includes('Sign in') && signInHtml.includes('Password'), `${signInHtml.length} chars`);
+  check('it carries the product framing rather than a bare form', signInHtml.includes('growth gap'));
+  check('it states plainly that the gate is not security', signInHtml.includes('it is not'));
+  check('no credential appears in the rendered markup', !signInHtml.includes('MATlens70450') && !signInHtml.includes('mihirpanchal400'));
+
+  /* ---------------------------------------------------------------- */
   const { runClientChecks } = await import('./clientCheck');
   await runClientChecks(check, heading);
 

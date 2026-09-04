@@ -1,34 +1,47 @@
 /* ============================================================
    MATLens design tokens
-   Chart series palette is the validated categorical palette
-   (adjacent-pair CVD safe, light surface). UI chrome uses a
-   separate accent hue so a series colour never impersonates
-   a UI affordance, and vice versa.
+
+   The product is an instrument for reading a market, so the
+   system is built for precision rather than decoration: one
+   accent, cool clinical neutrals, and figures that align.
+
+   The chart series palette and the status palette are the
+   validated colour-vision-safe sets and are deliberately kept
+   separate from UI chrome, so a data colour can never be
+   mistaken for an interactive affordance.
    ============================================================ */
 :root {
   color-scheme: light;
 
-  /* Surfaces & ink */
-  --canvas:        #f4f6f8;
+  /* ---- Surfaces & ink -------------------------------------- */
+  --canvas:        #f5f7f9;
   --surface:       #ffffff;
-  --surface-sunk:  #fafbfc;
-  --surface-inset: #f1f4f7;
-  --line:          #e3e8ef;
-  --line-strong:   #cfd7e3;
+  --surface-sunk:  #f9fbfc;
+  --surface-inset: #eef2f6;
+  --line:          #e2e8ee;
+  --line-strong:   #cbd5e0;
 
-  --ink-900: #0b1220;
-  --ink-700: #26334d;
-  --ink-500: #5a6784;
-  --ink-400: #7c8aa5;
-  --ink-300: #a3aec2;
+  --ink-900: #0d1b24;
+  --ink-700: #24384a;
+  --ink-500: #55697c;
+  --ink-400: #7a8c9d;
+  --ink-300: #a4b3c0;
 
-  /* Brand accent — UI chrome only, never a data series */
-  --accent:        #0f5f5b;
-  --accent-strong: #0b4b48;
-  --accent-tint:   #e7f1f0;
-  --accent-line:   #bcd8d5;
+  /* The instrument rail: a single deep ground the content sits against. */
+  --rail:          #0d1b24;
+  --rail-raised:   #162935;
+  --rail-line:     #22384a;
+  --rail-ink:      #e8eef3;
+  --rail-ink-dim:  #8fa5b6;
 
-  /* Status — fixed roles, always shipped with an icon + label */
+  /* ---- Brand accent — UI chrome only, never a data series --- */
+  --accent:        #0a5a55;
+  --accent-strong: #084945;
+  --accent-signal: #0e8078;
+  --accent-tint:   #e6f2f1;
+  --accent-line:   #b6d6d3;
+
+  /* ---- Status — fixed roles, always with an icon + label ---- */
   --good:      #0ca30c;
   --good-ink:  #0a7a0a;
   --good-tint: #e8f6e8;
@@ -46,7 +59,7 @@
   --pos-ink: #0a7a0a;
   --neg-ink: #b3261e;
 
-  /* Categorical series slots — fixed order, never cycled */
+  /* ---- Categorical series — fixed order, never cycled ------- */
   --series-1: #2a78d6;
   --series-2: #eb6834;
   --series-3: #1baf7a;
@@ -56,7 +69,7 @@
   --series-7: #4a3aa7;
   --series-8: #e34948;
 
-  /* Diverging pair (share change): blue <-> red, neutral gray midpoint */
+  /* Diverging pair (share change): blue <-> red, neutral midpoint */
   --div-pos: #2a78d6;
   --div-neg: #d03b3b;
   --div-mid: #f0efec;
@@ -72,18 +85,27 @@
   --axis: #d7dee8;
   --muted-mark: #c8d2e0;
 
-  /* Type */
-  --font-sans: "Segoe UI", -apple-system, BlinkMacSystemFont, Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "Cascadia Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  /* ---- Type ------------------------------------------------- */
+  /* IBM Plex was drawn for technical and data interfaces; the mono
+     cut is used only where figures must align in a column. */
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Menlo, Consolas, monospace;
 
-  /* Spacing / radius / elevation */
-  --r-sm: 4px;
-  --r-md: 8px;
-  --r-lg: 12px;
-  --shadow-sm: 0 1px 2px rgba(11, 18, 32, .06);
-  --shadow-md: 0 1px 3px rgba(11, 18, 32, .07), 0 8px 24px rgba(11, 18, 32, .06);
-  --shadow-lg: 0 24px 60px rgba(11, 18, 32, .16);
+  /* ---- Radius: varies by hierarchy, not one value everywhere - */
+  --r-chip: 3px;
+  --r-control: 6px;
+  --r-card: 10px;
+  --r-panel: 14px;
+  /* Retained aliases so existing rules keep working. */
+  --r-sm: var(--r-chip);
+  --r-md: var(--r-control);
+  --r-lg: var(--r-card);
 
-  --sidebar-w: 244px;
-  --topbar-h: 64px;
+  /* ---- Elevation: two levels, used sparingly ---------------- */
+  --shadow-sm: 0 1px 2px rgba(13, 27, 36, .05), 0 1px 1px rgba(13, 27, 36, .03);
+  --shadow-md: 0 2px 4px rgba(13, 27, 36, .05), 0 12px 28px -12px rgba(13, 27, 36, .18);
+  --shadow-lg: 0 32px 64px -24px rgba(13, 27, 36, .30);
+
+  --sidebar-w: 248px;
+  --topbar-h: 66px;
 }

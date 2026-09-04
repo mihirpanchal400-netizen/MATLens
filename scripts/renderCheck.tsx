@@ -8,6 +8,7 @@
  */
 import { renderToStaticMarkup } from 'react-dom/server';
 import { AppShell } from '../src/layouts/AppShell';
+import { SignIn } from '../src/auth/SignIn';
 import { AppStateProvider } from '../src/state/AppState';
 import { BrandPerformance } from '../src/pages/BrandPerformance';
 import { CompetitorIntelligence } from '../src/pages/CompetitorIntelligence';
@@ -47,6 +48,11 @@ export function renderPage(page: PageId, dataset: Dataset | null): string {
       </AppShell>
     </AppStateProvider>,
   );
+}
+
+/** Renders the sign-in gate that stands in front of the published build. */
+export function renderSignIn(): string {
+  return renderToStaticMarkup(<SignIn onSuccess={() => {}} />);
 }
 
 /** Renders the empty-state landing screen with no dataset at all. */

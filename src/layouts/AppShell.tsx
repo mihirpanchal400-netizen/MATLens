@@ -4,6 +4,7 @@ import { useApp } from '../state/AppState';
 import { Icon, type IconName } from '../components/Icon';
 import { Badge } from '../components/ui';
 import { brandOptions } from '../analytics/analyse';
+import { closeSession } from '../auth/credentials';
 import { formatValue } from '../utils/format';
 
 interface NavEntry {
@@ -108,6 +109,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {item.label}
             </button>
           ))}
+          <button
+            className="nav__link"
+            style={{ marginLeft: 'auto' }}
+            onClick={() => {
+              closeSession();
+              window.location.reload();
+            }}
+          >
+            Sign out
+          </button>
         </div>
 
         <div className="sidebar__foot">

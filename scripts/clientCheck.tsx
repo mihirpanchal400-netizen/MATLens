@@ -45,6 +45,9 @@ globalAny.ResizeObserver = ResizeObserverStub;
 (dom.window as unknown as Record<string, unknown>).ResizeObserver = ResizeObserverStub;
 globalAny.IS_REACT_ACT_ENVIRONMENT = true;
 dom.window.scrollTo = () => {};
+// The published build is behind a demo sign-in gate; open a session so the
+// walkthrough exercises the application itself.
+dom.window.sessionStorage.setItem('matlens.session', 'open');
 dom.window.HTMLElement.prototype.scrollIntoView = () => {};
 
 const errors: string[] = [];
