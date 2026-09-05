@@ -7,14 +7,14 @@ import React from 'react';
 export const CHART = {
   series: ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#4a3aa7', '#e34948'],
   /** Neutral mark for "everyone else" when one entity is emphasised. */
-  muted: '#c8d2e0',
-  emphasis: '#0f5f5b',
+  muted: '#bfccd8',
+  emphasis: '#0a5f59',
   diverging: { positive: '#2a78d6', negative: '#d03b3b', mid: '#f0efec' },
   sequential: ['#9ec5f4', '#5598e7', '#2a78d6', '#184f95'],
-  grid: '#edf1f5',
-  axis: '#d7dee8',
-  ink: '#0b1220',
-  inkMuted: '#5a6784',
+  grid: '#eaeff4',
+  axis: '#cbd6df',
+  ink: '#0a1620',
+  inkMuted: '#54687b',
   surface: '#ffffff',
 } as const;
 

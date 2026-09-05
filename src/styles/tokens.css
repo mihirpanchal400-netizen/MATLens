@@ -13,33 +13,47 @@
 :root {
   color-scheme: light;
 
-  /* ---- Surfaces & ink -------------------------------------- */
-  --canvas:        #f5f7f9;
+  /* ---- Surfaces: four planes, far enough apart to actually read --- */
+  --canvas:        #e9eef4;
   --surface:       #ffffff;
-  --surface-sunk:  #f9fbfc;
-  --surface-inset: #eef2f6;
-  --line:          #e2e8ee;
-  --line-strong:   #cbd5e0;
+  --surface-sunk:  #f4f7fa;
+  --surface-inset: #e4ebf1;
+  --line:          #d9e2ea;
+  --line-strong:   #bfccd8;
 
-  --ink-900: #0d1b24;
-  --ink-700: #24384a;
-  --ink-500: #55697c;
-  --ink-400: #5f7386;
-  --ink-300: #a4b3c0;
+  --ink-900: #0a1620;
+  --ink-700: #22384a;
+  --ink-500: #54687b;
+  --ink-400: #5e7285;
+  --ink-300: #98a9b7;
 
-  /* The instrument rail: a single deep ground the content sits against. */
-  --rail:          #0d1b24;
-  --rail-raised:   #162935;
-  --rail-line:     #22384a;
-  --rail-ink:      #e8eef3;
-  --rail-ink-dim:  #8fa5b6;
+  /* The instrument rail. Deep enough that the accent reads as a lit mark,
+     with a raised plane far enough away to make hover and active visible. */
+  --rail:          #0a1620;
+  --rail-raised:   #1a3141;
+  --rail-line:     #24404f;
+  --rail-ink:      #e9eff4;
+  --rail-ink-dim:  #93aabb;
 
-  /* ---- Brand accent — UI chrome only, never a data series --- */
-  --accent:        #0a5a55;
-  --accent-strong: #084945;
-  --accent-signal: #0e8078;
-  --accent-tint:   #e6f2f1;
-  --accent-line:   #b6d6d3;
+  /* ---- Accent: one hue, built as a ramp so each role has a step ---
+     500 is the on-dark signal (4.9:1 on the rail), 700 the interactive
+     step on white (7.5:1), 800 its hover. Tints carry backgrounds and
+     borders. Nothing is picked ad hoc. */
+  --accent-50:   #edf7f6;
+  --accent-100:  #d2e9e7;
+  --accent-200:  #a5d4d0;
+  --accent-400:  #2f9e95;
+  --accent-500:  #17948c;
+  --accent-600:  #0d7a72;
+  --accent-700:  #0a5f59;
+  --accent-800:  #084a45;
+
+  /* Role aliases used through the stylesheet. */
+  --accent:        var(--accent-700);
+  --accent-strong: var(--accent-800);
+  --accent-signal: var(--accent-500);
+  --accent-tint:   var(--accent-50);
+  --accent-line:   var(--accent-100);
 
   /* ---- Status — fixed roles, always with an icon + label ---- */
   --good:      #0ca30c;
@@ -102,9 +116,9 @@
   --r-lg: var(--r-card);
 
   /* ---- Elevation: two levels, used sparingly ---------------- */
-  --shadow-sm: 0 1px 2px rgba(13, 27, 36, .05), 0 1px 1px rgba(13, 27, 36, .03);
-  --shadow-md: 0 2px 4px rgba(13, 27, 36, .05), 0 12px 28px -12px rgba(13, 27, 36, .18);
-  --shadow-lg: 0 32px 64px -24px rgba(13, 27, 36, .30);
+  --shadow-sm: 0 1px 2px rgba(10, 22, 32, .06), 0 1px 1px rgba(10, 22, 32, .04);
+  --shadow-md: 0 2px 4px rgba(10, 22, 32, .06), 0 12px 28px -12px rgba(10, 22, 32, .20);
+  --shadow-lg: 0 32px 64px -24px rgba(10, 22, 32, .34);
 
   --sidebar-w: 248px;
   --topbar-h: 66px;
