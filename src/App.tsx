@@ -6,6 +6,8 @@ import { AppStateProvider, useApp } from './state/AppState';
 import { BrandPerformance } from './pages/BrandPerformance';
 import { CompetitorIntelligence } from './pages/CompetitorIntelligence';
 import { DataExplorer } from './pages/DataExplorer';
+import { ActionCenter } from './pages/ActionCenter';
+import { BriefBuilder } from './pages/BriefBuilder';
 import { InsightCenter } from './pages/InsightCenter';
 import { MarketLandscape } from './pages/MarketLandscape';
 import { MoleculeExplorer } from './pages/MoleculeExplorer';
@@ -29,6 +31,10 @@ function Router() {
       return <OpportunitySignals />;
     case 'insights':
       return <InsightCenter />;
+    case 'actions':
+      return <ActionCenter />;
+    case 'report':
+      return <BriefBuilder />;
     case 'explorer':
       return <DataExplorer />;
     case 'upload':

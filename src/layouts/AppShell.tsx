@@ -31,7 +31,11 @@ const NAV_GROUPS: Array<{ label: string; items: NavEntry[] }> = [
   },
   {
     label: 'Workspace',
-    items: [{ id: 'insights', label: 'Insight Center', icon: 'insights' }],
+    items: [
+      { id: 'insights', label: 'Insight Center', icon: 'insights' },
+      { id: 'actions', label: 'Action Center', icon: 'opportunities' },
+      { id: 'report', label: 'Brief Builder', icon: 'methodology' },
+    ],
   },
 ];
 
@@ -49,6 +53,8 @@ const PAGE_TITLES: Record<PageId, { title: string; subtitle: string }> = {
   competitors: { title: 'Competitor Intelligence', subtitle: 'Who is gaining, who is losing, and who is worth watching' },
   opportunities: { title: 'Opportunity Signals', subtitle: 'Where the data suggests the brand is not capturing available growth' },
   insights: { title: 'Insight Center', subtitle: 'What a Brand Manager should pay attention to, and why' },
+  actions: { title: 'Action Center', subtitle: 'What deserves attention first, and what to do about it' },
+  report: { title: 'Brief Builder', subtitle: 'Turn the findings and decisions into a document you can present' },
   explorer: { title: 'Data Explorer', subtitle: 'The underlying rows, and how every derived metric was calculated' },
   upload: { title: 'MAT Data Upload', subtitle: 'Import your latest MAT data to refresh MATLens intelligence' },
   methodology: { title: 'Methodology', subtitle: 'Every formula, threshold and limitation MATLens applies' },

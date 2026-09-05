@@ -13,6 +13,7 @@ import type {
 import { EMPTY_FILTERS } from '../types';
 import { analyse, applyFilters, findBrand } from '../analytics/analyse';
 import { generateInsights, opportunitiesFrom } from '../analytics/insightEngine';
+import { generateActions, type Action, type ActionStatus } from '../analytics/actionEngine';
 import { buildDataset } from '../data/buildDataset';
 import { mapColumns, overrideMapping } from '../data/columnMapper';
 import { loadDemoDataset } from '../data/demoDataset';
@@ -41,6 +42,10 @@ interface AppStateValue {
   filtersActive: boolean;
   /** Keys of insights the user has saved to their workspace. */
   savedInsights: Set<string>;
+  /** Recommended actions derived from the current findings, ranked. */
+  actions: Action[];
+  /** Decisions taken on those actions, by action id. */
+  actionStatus: Record<string, ActionStatus>;
 
   goTo: (page: PageId, brand?: string) => void;
   setFilter: (key: keyof Filters, value: string | null) => void;
@@ -50,6 +55,7 @@ interface AppStateValue {
   loadFile: (file: File) => Promise<void>;
   remapColumn: (sourceColumn: string, field: FieldKey | null) => void;
   toggleSavedInsight: (insight: Insight) => void;
+  setActionStatus: (id: string, status: ActionStatus) => void;
   setValueScale: (scale: number) => void;
   resetMapping: () => void;
   clearDataset: () => void;
@@ -59,6 +65,7 @@ interface AppStateValue {
 const AppStateContext = createContext<AppStateValue | null>(null);
 
 const SAVED_KEY = 'matlens.savedInsights';
+const ACTIONS_KEY = 'matlens.actionStatus';
 
 /**
  * A stable identity for a finding. Insight ids carry a per-run sequence number,
@@ -66,6 +73,15 @@ const SAVED_KEY = 'matlens.savedInsights';
  */
 export function insightKey(insight: Insight): string {
   return `${insight.rule}|${insight.subject}|${insight.type}`;
+}
+
+function readActionStatus(): Record<string, ActionStatus> {
+  try {
+    const raw = window.localStorage.getItem(ACTIONS_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, ActionStatus>) : {};
+  } catch {
+    return {};
+  }
 }
 
 function readSavedInsights(): Set<string> {
@@ -97,6 +113,7 @@ export function AppStateProvider({
   const [progress, setProgress] = useState<ParseProgress | null>(null);
   const [error, setError] = useState<LoadError | null>(null);
   const [savedInsights, setSavedInsights] = useState<Set<string>>(readSavedInsights);
+  const [actionStatus, setActionStatusMap] = useState<Record<string, ActionStatus>>(readActionStatus);
 
   const adopt = useCallback((next: Dataset, landOn: PageId) => {
     setDataset(next);
@@ -237,6 +254,18 @@ export function AppStateProvider({
     });
   }, []);
 
+  const setActionStatus = useCallback((id: string, status: ActionStatus) => {
+    setActionStatusMap((current) => {
+      const next = { ...current, [id]: status };
+      try {
+        window.localStorage.setItem(ACTIONS_KEY, JSON.stringify(next));
+      } catch {
+        // Decisions still hold for the session without a store.
+      }
+      return next;
+    });
+  }, []);
+
   const clearDataset = useCallback(() => {
     setDataset(null);
     setFilters(EMPTY_FILTERS);
@@ -278,6 +307,11 @@ export function AppStateProvider({
 
   const opportunities = useMemo(() => opportunitiesFrom(insights), [insights]);
 
+  const actions = useMemo(
+    () => (dataset ? generateActions(insights, dataset.capabilities) : []),
+    [insights, dataset],
+  );
+
   const filtersActive = useMemo(() => Object.values(filters).some(Boolean), [filters]);
 
   const value: AppStateValue = {
@@ -295,6 +329,8 @@ export function AppStateProvider({
     opportunities,
     filtersActive,
     savedInsights,
+    actions,
+    actionStatus,
     goTo,
     setFilter,
     resetFilters,
@@ -303,6 +339,7 @@ export function AppStateProvider({
     loadFile,
     remapColumn,
     toggleSavedInsight,
+    setActionStatus,
     setValueScale,
     resetMapping,
     clearDataset,

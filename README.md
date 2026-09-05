@@ -59,7 +59,7 @@ The product loop:
 RAW DATA → UNDERSTAND → ANALYSE → IDENTIFY SIGNAL → EXPLAIN → INVESTIGATE → BRAND DECISION
 ```
 
-Ten screens, each answering one question:
+Twelve screens, each answering one question:
 
 | Screen | The question it answers |
 |---|---|
@@ -70,6 +70,8 @@ Ten screens, each answering one question:
 | **Competitor Intelligence** | Who is gaining, who is losing, and who is worth watching? |
 | **Opportunity Signals** | Where is growth available that my brand is not capturing? |
 | **Insight Center** | What should I pay attention to, ranked, with the evidence? |
+| **Action Center** | What deserves attention first, and what should I do about it? |
+| **Brief Builder** | Turn the findings and decisions into something I can present |
 | **Data Explorer** | What is in the file, and how was every derived number calculated? |
 | **Upload Data** | What did MATLens understand from my file, and is it right? |
 | **Methodology** | Every formula, threshold, rule and limitation, in full. |
@@ -132,6 +134,36 @@ proposed as the molecule with the evidence quoted in the mapping table — and, 
 can be corrected in one click.
 
 On a real 211 MB IPM basefile this finds **3,944 molecules** the app would otherwise have ignored.
+
+## From finding to decision to deliverable
+
+The insight engine answers *what changed and why it matters*. Two further layers close the loop a
+Product Manager actually works in.
+
+**The action engine** maps each finding onto the commercial response it implies — an objective, a
+rationale, a suggested owner, an urgency, an effort estimate, the assumptions it rests on and the
+evidence it inherits from the finding. Actions are ranked by
+
+```
+Priority = impact × urgency × confidence ÷ effort,  scaled to 100
+```
+
+and every card shows its own arithmetic, so the ranking can be argued with rather than taken on
+trust. Confidence is capped below certainty on purpose: one MAT period against one prior period
+cannot establish cause. Each action can be accepted, marked for investigation or dismissed, and that
+decision persists.
+
+Adding a rule to the insight engine and a row to the playbook is the entire cost of extending this —
+no UI work required.
+
+**The brief builder** assembles the selected findings and the actions taken on them into a document:
+executive conclusion, what changed, why it matters, recommended actions, then method and limitations.
+It exports as Markdown or prints to PDF through a dedicated print stylesheet — no export dependency.
+
+**There is no language model anywhere in this.** The narrative is composed from the analysis itself,
+which means every sentence traces to a number on screen, the same file always produces the same
+brief, and the product still runs as a static site with no API key. For a tool whose entire claim is
+that it can be checked, a generated paragraph that cannot be reproduced would be a downgrade.
 
 ## Analytical framework
 
@@ -271,7 +303,7 @@ npm install       # install dependencies
 npm run dev       # start the dev server (http://localhost:5173)
 npm run build     # typecheck and build for production
 npm run preview   # serve the production build
-npm run verify    # run the full verification suite (214 checks)
+npm run verify    # run the full verification suite (261 checks)
 npm run gen:demo  # regenerate the synthetic files in public/demo-data
 npm run convert   # convert a large basefile into a MATLens-ready CSV (see below)
 ```

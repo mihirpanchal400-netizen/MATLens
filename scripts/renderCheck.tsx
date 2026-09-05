@@ -13,6 +13,8 @@ import { AppStateProvider } from '../src/state/AppState';
 import { BrandPerformance } from '../src/pages/BrandPerformance';
 import { CompetitorIntelligence } from '../src/pages/CompetitorIntelligence';
 import { DataExplorer } from '../src/pages/DataExplorer';
+import { ActionCenter } from '../src/pages/ActionCenter';
+import { BriefBuilder } from '../src/pages/BriefBuilder';
 import { InsightCenter } from '../src/pages/InsightCenter';
 import { Landing } from '../src/pages/Landing';
 import { MarketLandscape } from '../src/pages/MarketLandscape';
@@ -31,6 +33,8 @@ export const PAGES: Array<{ id: PageId; label: string; Component: () => JSX.Elem
   { id: 'competitors', label: 'Competitor Intelligence', Component: CompetitorIntelligence },
   { id: 'opportunities', label: 'Opportunity Signals', Component: OpportunitySignals },
   { id: 'insights', label: 'Insight Center', Component: InsightCenter },
+  { id: 'actions', label: 'Action Center', Component: ActionCenter },
+  { id: 'report', label: 'Brief Builder', Component: BriefBuilder },
   { id: 'explorer', label: 'Data Explorer', Component: DataExplorer },
   { id: 'upload', label: 'MAT Data Upload', Component: UploadData },
   { id: 'methodology', label: 'Methodology', Component: Methodology },

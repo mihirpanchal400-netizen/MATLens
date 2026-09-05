@@ -116,6 +116,8 @@ export async function runClientChecks(check: Check, heading: (text: string) => v
     ['Competitor Intelligence', 'Competitor landscape'],
     ['Opportunity Signals', 'What counts as a signal'],
     ['Insight Center', 'What should a Brand Manager pay attention to?'],
+    ['Action Center', 'What deserves attention first'],
+    ['Brief Builder', 'Executive conclusion'],
     ['Data Explorer', 'How was this calculated?'],
     ['MAT Data Upload', 'Upload new MAT data'],
     ['Methodology', 'Rule catalogue'],
@@ -171,6 +173,14 @@ export async function runClientChecks(check: Check, heading: (text: string) => v
   await click(byText('Saved (1)'), 'Saved filter');
   check('the saved filter shows the collected findings', text().includes('Saved findings'));
   await click(byText('All ('), 'All filter');
+
+  // Action decisions persist and are reflected in the Decided filter.
+  await click(byText('Action Center'), 'nav: Action Center');
+  check('actions are ranked and shown', /Priority \d+/.test(text()));
+  await click(byExactText('Accept'), 'Accept action');
+  check('accepting an action records the decision', text().includes('Decided (1)'), 'decided counter');
+  await click(byText('Brief Builder'), 'nav: Brief Builder');
+  check('the brief assembles from the findings', text().includes('Recommended actions'));
 
   // Calculation modal.
   await click(byText('Insight Center'), 'nav: Insight Center');

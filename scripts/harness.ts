@@ -615,6 +615,69 @@ async function main() {
   check('no credential appears in the rendered markup', !signInHtml.includes('MATlens70450') && !signInHtml.includes('mihirpanchal400'));
 
   /* ---------------------------------------------------------------- */
+  heading('18. Action engine — insight to decision');
+
+  const { generateActions, SCORING_NOTE } = await import('../src/analytics/actionEngine');
+  const demoActions = generateActions(insights, demo.capabilities);
+
+  check('actions are produced from the findings', demoActions.length >= 4, `${demoActions.length} actions`);
+  check('ranked highest priority first', demoActions.every((a, i) => i === 0 || demoActions[i - 1].priorityScore >= a.priorityScore));
+  check('every score sits on the published 0-100 scale', demoActions.every((a) => a.priorityScore >= 0 && a.priorityScore <= 100));
+  check('every action explains its own ranking', demoActions.every((a) => /Impact .* confidence .* effort/.test(a.scoreExplanation)));
+  check('every action traces back to a finding', demoActions.every((a) => insights.some((i) => a.insightTitle === i.title)));
+  check('every action carries the evidence of that finding', demoActions.every((a) => a.evidence.length > 0));
+  check('every action states its assumptions', demoActions.every((a) => a.assumptions.length > 0 || a.dependencies.length > 0));
+  check('every action names a suggested owner and a next step', demoActions.every((a) => Boolean(a.owner && a.nextStep)));
+  check('action ids are unique and stable', new Set(demoActions.map((a) => a.id)).size === demoActions.length);
+  check(
+    'confidence is never presented as certainty',
+    demoActions.every((a) => a.confidence > 0 && a.confidence <= 0.86),
+    `max ${Math.max(...demoActions.map((a) => a.confidence))}`,
+  );
+
+  // Commercial scope only: nothing here may drift into clinical territory.
+  const clinical = /prescrib|dosage|dose |patient|treatment|therapy regimen|contraindicat|efficacy claim/i;
+  check(
+    'no recommendation strays into clinical territory',
+    demoActions.every((a) => !clinical.test(`${a.title} ${a.objective} ${a.rationale} ${a.nextStep} ${a.expectedOutcome}`)),
+  );
+  // Decision support, not instruction: no imperative certainty about outcomes.
+  const overclaim = /will increase|guarantee|proven to|certainly|definitely causes/i;
+  check(
+    'no recommendation overclaims a result',
+    demoActions.every((a) => !overclaim.test(`${a.objective} ${a.rationale} ${a.expectedOutcome}`)),
+  );
+  check('the scoring method is published for the user', SCORING_NOTE.includes('impact') && SCORING_NOTE.includes('effort'));
+
+  const degradedActions = generateActions(
+    generateInsights(analyse(currentOnly.rows), analyse(currentOnly.rows).brands[0], currentOnly.capabilities),
+    currentOnly.capabilities,
+  );
+  check('a thinner dataset still produces usable actions', degradedActions.length > 0, `${degradedActions.length}`);
+  check(
+    'and rates them at lower confidence than the complete dataset',
+    Math.max(...degradedActions.map((a) => a.confidence)) < Math.max(...demoActions.map((a) => a.confidence)),
+  );
+
+  console.log('\n  Top actions:');
+  for (const a of demoActions.slice(0, 5)) {
+    console.log(`   [${String(a.priorityScore).padStart(3)}] ${a.category.padEnd(11)} ${a.title}`);
+  }
+
+  /* ---------------------------------------------------------------- */
+  heading('19. Brief builder');
+  const briefHtml = renderPage('report', demo);
+  check('the brief renders', briefHtml.includes('Executive conclusion'), `${briefHtml.length} chars`);
+  check('it states what changed', briefHtml.includes('What changed'));
+  check('it states why it matters', briefHtml.includes('Why it matters'));
+  check('it carries the recommended actions', briefHtml.includes('Recommended actions'));
+  check('it publishes its method and limits', briefHtml.includes('Method and limitations') && briefHtml.includes('cannot establish why'));
+  check('it names its source file', briefHtml.includes(demo.fileName));
+  const actionsHtml = renderPage('actions', demo);
+  check('the action centre renders ranked actions', actionsHtml.includes('Priority') && actionsHtml.includes('deserves attention first'));
+  check('it frames actions as decision support', actionsHtml.includes('decision support, not an instruction'));
+
+  /* ---------------------------------------------------------------- */
   const { runClientChecks } = await import('./clientCheck');
   await runClientChecks(check, heading);
 

@@ -255,6 +255,8 @@ export type PageId =
   | 'competitors'
   | 'opportunities'
   | 'insights'
+  | 'actions'
+  | 'report'
   | 'explorer'
   | 'upload'
   | 'methodology';
