@@ -612,6 +612,8 @@ async function main() {
   check('the sign-in screen renders', signInHtml.includes('Sign in') && signInHtml.includes('Password'), `${signInHtml.length} chars`);
   check('it carries the product framing rather than a bare form', signInHtml.includes('growth gap'));
   check('it states plainly that the gate is not security', signInHtml.includes('it is not'));
+  check('the password can be revealed', signInHtml.includes('Show') && signInHtml.includes('aria-label="Show password"'));
+  check('and the field starts masked', signInHtml.includes('type="password"'));
   check('no credential appears in the rendered markup', !signInHtml.includes('MATlens70450') && !signInHtml.includes('mihirpanchal400'));
 
   /* ---------------------------------------------------------------- */

@@ -14,7 +14,7 @@
   color-scheme: light;
 
   /* ---- Surfaces: four planes, far enough apart to actually read --- */
-  --canvas:        #e9eef4;
+  --canvas:        #f2f5f8;
   --surface:       #ffffff;
   --surface-sunk:  #f4f7fa;
   --surface-inset: #e4ebf1;
@@ -27,13 +27,20 @@
   --ink-400: #5e7285;
   --ink-300: #98a9b7;
 
-  /* The instrument rail. Deep enough that the accent reads as a lit mark,
-     with a raised plane far enough away to make hover and active visible. */
-  --rail:          #0a1620;
-  --rail-raised:   #1a3141;
-  --rail-line:     #24404f;
-  --rail-ink:      #e9eff4;
-  --rail-ink-dim:  #93aabb;
+  /* Chrome is light and type-led. Market data gets read for hours at a stretch,
+     and a dark rail against white content fights the eye -- it has also become
+     the default look of a generated dashboard. */
+  --rail:          #ffffff;
+  --rail-raised:   #edf7f6;
+  --rail-line:     #dfe6ed;
+  --rail-ink:      #0a1620;
+  --rail-ink-dim:  #54687b;
+
+  /* The one dark surface left, where it earns its keep: the sign-in panel. */
+  --panel-dark:    #0a1620;
+  --panel-dark-2:  #15293a;
+  --panel-ink:     #e9eff4;
+  --panel-ink-dim: #93aabb;
 
   /* ---- Accent: one hue, built as a ramp so each role has a step ---
      500 is the on-dark signal (4.9:1 on the rail), 700 the interactive
@@ -108,18 +115,18 @@
   /* ---- Radius: varies by hierarchy, not one value everywhere - */
   --r-chip: 3px;
   --r-control: 6px;
-  --r-card: 10px;
-  --r-panel: 14px;
+  --r-card: 6px;
+  --r-panel: 8px;
   /* Retained aliases so existing rules keep working. */
   --r-sm: var(--r-chip);
   --r-md: var(--r-control);
   --r-lg: var(--r-card);
 
   /* ---- Elevation: two levels, used sparingly ---------------- */
-  --shadow-sm: 0 1px 2px rgba(10, 22, 32, .06), 0 1px 1px rgba(10, 22, 32, .04);
-  --shadow-md: 0 2px 4px rgba(10, 22, 32, .06), 0 12px 28px -12px rgba(10, 22, 32, .20);
+  --shadow-sm: none;
+  --shadow-md: 0 1px 2px rgba(10, 22, 32, .06), 0 8px 24px -14px rgba(10, 22, 32, .22);
   --shadow-lg: 0 32px 64px -24px rgba(10, 22, 32, .34);
 
-  --sidebar-w: 248px;
+  --sidebar-w: 236px;
   --topbar-h: 66px;
 }

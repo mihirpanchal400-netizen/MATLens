@@ -37,6 +37,7 @@ export function SignIn({ onSuccess }: { onSuccess: () => void }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
+  const [revealed, setRevealed] = useState(false);
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -94,14 +95,25 @@ export function SignIn({ onSuccess }: { onSuccess: () => void }) {
 
             <label className="field">
               <span className="field__label">Password</span>
-              <input
-                className="input"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                autoComplete="current-password"
-                required
-              />
+              <span className="pw">
+                <input
+                  className="input"
+                  type={revealed ? 'text' : 'password'}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  autoComplete="current-password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="pw__toggle"
+                  onClick={() => setRevealed((v) => !v)}
+                  aria-pressed={revealed}
+                  aria-label={revealed ? 'Hide password' : 'Show password'}
+                >
+                  {revealed ? 'Hide' : 'Show'}
+                </button>
+              </span>
             </label>
           </div>
 
